@@ -79,102 +79,61 @@ SecureShare is a revolutionary Chrome extension that solves a common problem: sh
 
 ### Sharing an Account (Sender)
 
-<table>
-<tr>
-<td width="50%">
+1. **Navigate to the website** where you're logged in
+2. **Click the SecureShare icon** in your Chrome toolbar
+3. **Get recipient's code** - Ask them to open SecureShare and click "Receive Account"
+4. **Click "Share Account"** and paste the recipient's code
+5. **Set expiration time** (optional - defaults to 1 week)
+6. **Click "Share"** and copy the encrypted session data
+7. **Send the encrypted data** to the recipient via any messaging app
 
 ### Receiving an Account (Recipient)
 
-1. **Open SecureShare** → Click "Receive Account"
-2. **Share Your Code** → Send your unique code to the sender
-3. **Paste Encrypted Data** → Paste what you received from sender
-4. **Click Receive** → Website opens with active session!
+1. **Open SecureShare** and click "Receive Account"
+2. **Copy your unique code** and share it with the sender
+3. **Paste the encrypted data** you received from the sender
+4. **Click "Receive"** - The website will open with the shared session active!
 
 ---
 
 ## 🔧 How It Works
 
-### Technical Architecture
+SecureShare uses advanced cryptographic techniques to ensure your passwords never leave your device:
 
-```mermaid
-graph LR
-    A[Sender's Browser] -->|Extract Cookies| B[Session Data]
-    B -->|Encrypt with Recipient's Public Key| C[Encrypted Package]
-    C -->|Send via Any Channel| D[Recipient]
-    D -->|Decrypt with Private Key| E[Session Data]
-    E -->|Restore Cookies| F[Active Session]
-```
-
-### Encryption Process
-
-1. **🔑 Key Generation**
-
-   - Each installation generates a unique EC-ElGamal key pair
-   - Public key for encryption, private key for decryption
-   - Keys stored locally in browser storage
-2. **📦 Session Packaging**
-
-   - Current tab's cookies are extracted
-   - Session data includes URL and expiration time
-   - Data is serialized into a secure format
-3. **🔐 Encryption**
-
-   - Data encrypted using recipient's public key
-   - Only recipient's private key can decrypt
-   - Uses Stanford Javascript Crypto Library (SJCL)
-4. **📤 Transfer**
-
-   - Encrypted data converted to shareable text
-   - Can be sent through any communication channel
-   - No data passes through external servers
-5. **🔓 Restoration**
-
-   - Recipient decrypts with their private key
-   - Cookies are restored to browser
-   - Website session becomes immediately active
+1. **Key Generation** - Each installation generates a unique public-private key pair
+2. **Session Extraction** - Cookies from the current tab are extracted locally
+3. **Encryption** - Session data is encrypted using the recipient's public key
+4. **Transfer** - Encrypted data is shared as text (no servers involved)
+5. **Decryption** - Only the recipient's private key can decrypt the session
+6. **Session Restoration** - Cookies are restored and the session becomes active
 
 ---
 
 ## 🔒 Security
 
 ### Encryption Standards
+- **Algorithm**: EC-ElGamal (Elliptic Curve Cryptography)
+- **Library**: Stanford Javascript Crypto Library (SJCL)
+- **Key Size**: 256-bit elliptic curve keys
+- **Security Level**: Military-grade encryption
 
-| Component | Technology                         | Security Level    |
-| --------- | ---------------------------------- | ----------------- |
-| Algorithm | EC-ElGamal (Elliptic Curve)        | Military-grade    |
-| Library   | Stanford Javascript Crypto Library | Industry Standard |
-| Key Size  | 256-bit elliptic curve             | High Security     |
-| Storage   | Local browser storage only         | Privacy-focused   |
-
-### Security Features
-
-✅ **No Password Storage** - Passwords never leave your device
-✅ **No External Servers** - All processing happens locally
-✅ **Automatic Expiration** - Sessions expire at set times
-✅ **One-Way Encryption** - Only recipient can decrypt
-✅ **Key Regeneration** - Generate new keys anytime
-✅ **No Tracking** - Zero analytics or data collection
-
-### Best Practices
-
-- 🔐 Only share with trusted individuals
-- ⏰ Use short expiration times when possible
-- 🔄 Regenerate keys periodically
-- 📋 Review share history regularly
-- 🚫 Revoke access if suspicious activity detected
+### Privacy Features
+- ✅ **No Password Storage** - Passwords never leave your device
+- ✅ **No External Servers** - All processing happens locally
+- ✅ **No Tracking** - Zero analytics or data collection
+- ✅ **Automatic Expiration** - Sessions expire at set times
+- ✅ **Key Regeneration** - Generate new keys anytime
 
 ---
 
 ## 🛠️ Development
 
 ### Prerequisites
-
 - Node.js 14+ and npm
 - Chrome Browser
 - Git
 
 ### Setup
-
 ```bash
 # Clone repository
 git clone https://github.com/mrx-arafat/SecureShare.git
@@ -185,68 +144,39 @@ npm install
 
 # Build for production
 npm run build:prod
-
-# Package extension
-npm run package
 ```
 
 ### Project Structure
-
 ```
 SecureShare/
-├── manifest.json          # Extension configuration
-├── icons/                 # Extension icons
-│   ├── 16.png
-│   ├── 18.png
-│   ├── 19.png
-│   ├── 38.png
-│   ├── 48.png
-│   └── 128.png
-├── popup/                 # Extension popup
-│   ├── index.html        # Popup UI
-│   ├── css/              # Styles
-│   ├── js/               # Scripts
-│   └── images/           # Assets
-├── gulpfile.js           # Build configuration
-├── package.json          # Dependencies
-├── CHANGELOG.md          # Version history
-├── CONTRIBUTING.md       # Contribution guidelines
-├── LICENSE              # MIT License
-├── PRIVACY.md           # Privacy policy
-└── README.md            # Documentation
+├── manifest.json        # Extension configuration
+├── icons/              # Extension icons
+├── popup/              # Extension popup UI
+│   ├── index.html      # Main popup HTML
+│   ├── css/            # Stylesheets
+│   ├── js/             # JavaScript files
+│   └── images/         # UI assets
+├── package.json        # Dependencies
+└── README.md           # Documentation
 ```
-
----
-
-## 📝 Changelog
-
-### Version 1.0.0 (2024)
-
-- 🎉 Initial release
-- ✅ Core sharing functionality
-- ✅ EC-ElGamal encryption
-- ✅ Time-limited sessions
-- ✅ Share history tracking
-- ✅ Manifest V3 support
-- ✅ Transparent icon design
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see our [Contributing Guidelines](https://github.com/mrx-arafat/SecureShare/blob/main/CONTRIBUTING.md) for details.
+Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-1. Fork the repository on [GitHub](https://github.com/mrx-arafat/SecureShare/fork)
+1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a [Pull Request](https://github.com/mrx-arafat/SecureShare/pulls)
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/mrx-arafat/SecureShare/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -259,31 +189,20 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ---
 
-## 🙏 Acknowledgments
-
-- [Stanford Javascript Crypto Library](https://github.com/bitwiseshiftleft/sjcl) for encryption
-- [Chrome Extensions Documentation](https://developer.chrome.com/docs/extensions/)
-- [Balloon.css](https://kazzkiq.github.io/balloon.css/) for tooltips
-- All contributors and users of SecureShare
-
----
-
 ## ⭐ Support
 
 If you find SecureShare useful, please consider:
-
-- ⭐ [Star this repository](https://github.com/mrx-arafat/SecureShare/stargazers)
-- 🐛 [Report bugs and issues](https://github.com/mrx-arafat/SecureShare/issues/new)
-- 💡 [Suggest new features](https://github.com/mrx-arafat/SecureShare/issues/new)
+- ⭐ [Star this repository](https://github.com/mrx-arafat/SecureShare)
+- 🐛 [Report issues](https://github.com/mrx-arafat/SecureShare/issues)
+- 💡 [Suggest features](https://github.com/mrx-arafat/SecureShare/issues)
 - 🍴 [Fork the project](https://github.com/mrx-arafat/SecureShare/fork)
-- 📢 Share with others who might benefit
 
 ---
 
 <div align="center">
 
-  **SecureShare - Because Security Shouldn't Compromise Convenience**
+**SecureShare - Because Security Shouldn't Compromise Convenience**
 
-  Made by [Easin Arafat](https://github.com/mrx-arafat)
+Made with ❤️ by [Easin Arafat](https://github.com/mrx-arafat)
 
 </div>
