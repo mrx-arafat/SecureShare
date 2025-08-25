@@ -5,7 +5,7 @@ All notable changes to SecureShare will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2024-12-25
+## [1.0.0] - 2025-08-25
 
 ### Added
 - Initial release of SecureShare Chrome Extension
@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added proper error handling
 - Improved UI/UX with better feedback
 
-## [0.9.0] - 2024-12-01 (Pre-release)
+## [0.9.0] - 2025-07-01 (Pre-release)
 
 ### Added
 - Beta testing version

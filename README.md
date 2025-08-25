@@ -6,10 +6,12 @@
 
 ### 🔐 Share Your Accounts Without Sharing Your Passwords
 
-  [![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)](https://github.com/mrx-arafat/secure-share/releases)
-  [![Manifest](https://img.shields.io/badge/manifest-v3-green?style=flat-square)](manifest.json)
-  [![License](https://img.shields.io/badge/license-MIT-purple?style=flat-square)](LICENSE)
+  [![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)](https://github.com/mrx-arafat/SecureShare/releases)
+  [![Manifest](https://img.shields.io/badge/manifest-v3-green?style=flat-square)](https://github.com/mrx-arafat/SecureShare/blob/main/manifest.json)
+  [![License](https://img.shields.io/badge/license-MIT-purple?style=flat-square)](https://github.com/mrx-arafat/SecureShare/blob/main/LICENSE)
   [![Chrome](https://img.shields.io/badge/platform-Chrome-orange?style=flat-square&logo=google-chrome&logoColor=white)](https://www.google.com/chrome/)
+  [![GitHub Stars](https://img.shields.io/github/stars/mrx-arafat/SecureShare?style=flat-square)](https://github.com/mrx-arafat/SecureShare/stargazers)
+  [![GitHub Issues](https://img.shields.io/github/issues/mrx-arafat/SecureShare?style=flat-square)](https://github.com/mrx-arafat/SecureShare/issues)
 
   **A Chrome extension that enables secure, temporary account sharing without revealing passwords**
 
@@ -55,8 +57,8 @@ SecureShare is a revolutionary Chrome extension that solves a common problem: sh
 1. **Download the Extension**
 
    ```bash
-   git clone https://github.com/mrx-arafat/secure-share.git
-   cd secure-share
+   git clone https://github.com/mrx-arafat/SecureShare.git
+   cd SecureShare
    ```
 2. **Open Chrome Extensions Page**
 
@@ -68,7 +70,7 @@ SecureShare is a revolutionary Chrome extension that solves a common problem: sh
 4. **Load the Extension**
 
    - Click "Load unpacked"
-   - Select the `secure-share` folder
+   - Select the `SecureShare` folder
    - The SecureShare icon will appear in your toolbar
 
 ---
@@ -175,26 +177,27 @@ graph LR
 
 ```bash
 # Clone repository
-git clone https://github.com/mrx-arafat/secure-share.git
-cd secure-share
+git clone https://github.com/mrx-arafat/SecureShare.git
+cd SecureShare
 
 # Install dependencies
 npm install
 
 # Build for production
-gulp build
+npm run build:prod
 
 # Package extension
-gulp package
+npm run package
 ```
 
 ### Project Structure
 
 ```
-secure-share/
+SecureShare/
 ├── manifest.json          # Extension configuration
 ├── icons/                 # Extension icons
 │   ├── 16.png
+│   ├── 18.png
 │   ├── 19.png
 │   ├── 38.png
 │   ├── 48.png
@@ -205,7 +208,12 @@ secure-share/
 │   ├── js/               # Scripts
 │   └── images/           # Assets
 ├── gulpfile.js           # Build configuration
-└── package.json          # Dependencies
+├── package.json          # Dependencies
+├── CHANGELOG.md          # Version history
+├── CONTRIBUTING.md       # Contribution guidelines
+├── LICENSE              # MIT License
+├── PRIVACY.md           # Privacy policy
+└── README.md            # Documentation
 ```
 
 ---
@@ -226,28 +234,28 @@ secure-share/
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see our [Contributing Guidelines](https://github.com/mrx-arafat/SecureShare/blob/main/CONTRIBUTING.md) for details.
 
-1. Fork the repository
+1. Fork the repository on [GitHub](https://github.com/mrx-arafat/SecureShare/fork)
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+5. Open a [Pull Request](https://github.com/mrx-arafat/SecureShare/pulls)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/mrx-arafat/SecureShare/blob/main/LICENSE) file for details.
 
 ---
 
 ## 👨‍💻 Author
 
 **Easin Arafat**
-GitHub: [@mrx-arafat](https://github.com/mrx-arafat)
-Email: arafatmrx@gmail.com
-Website: [profile.arafatops.com](https://profile.arafatops.com)
+- GitHub: [@mrx-arafat](https://github.com/mrx-arafat)
+- Email: [arafatmrx@gmail.com](mailto:arafatmrx@gmail.com)
+- Website: [profile.arafatops.com](https://profile.arafatops.com)
 
 ---
 
@@ -255,7 +263,8 @@ Website: [profile.arafatops.com](https://profile.arafatops.com)
 
 - [Stanford Javascript Crypto Library](https://github.com/bitwiseshiftleft/sjcl) for encryption
 - [Chrome Extensions Documentation](https://developer.chrome.com/docs/extensions/)
-- All contributors and users
+- [Balloon.css](https://kazzkiq.github.io/balloon.css/) for tooltips
+- All contributors and users of SecureShare
 
 ---
 
@@ -263,10 +272,11 @@ Website: [profile.arafatops.com](https://profile.arafatops.com)
 
 If you find SecureShare useful, please consider:
 
-- ⭐ Starring this repository
-- 🐛 Reporting bugs and issues
-- 💡 Suggesting new features
-- 📢 Sharing with others who might benefit
+- ⭐ [Star this repository](https://github.com/mrx-arafat/SecureShare/stargazers)
+- 🐛 [Report bugs and issues](https://github.com/mrx-arafat/SecureShare/issues/new)
+- 💡 [Suggest new features](https://github.com/mrx-arafat/SecureShare/issues/new)
+- 🍴 [Fork the project](https://github.com/mrx-arafat/SecureShare/fork)
+- 📢 Share with others who might benefit
 
 ---
 
