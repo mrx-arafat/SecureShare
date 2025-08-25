@@ -1,23 +1,44 @@
+/**
+ * Configuration Module
+ * Manages extension settings and storage
+ * @module configuration
+ */
 (function () {
   'use strict'
 
-  var DEFAULT_CONFIGURATION = {
-    publicKey: null,
-    privateKey: null,
-
-    sessions: {},        // { time: [{url, title}] }
-    hasSessions: false
+  /**
+   * Default configuration values
+   * @const {Object}
+   */
+  const DEFAULT_CONFIGURATION = {
+    publicKey: null,      // User's public key for receiving shares
+    privateKey: null,     // User's private key for decryption
+    sessions: {},         // Share history: { timestamp: [{url, title}] }
+    hasSessions: false    // Quick flag to check if any sessions exist
   }
 
-  var configuration = {
+  /**
+   * Configuration API
+   * @namespace
+   */
+  const configuration = {
     DEFAULT: DEFAULT_CONFIGURATION,
 
+    /**
+     * Iterate over default configuration properties
+     * @param {Function} callback - Function to call for each property
+     */
     forEachDefault: function(callback) {
-      for(var prop in DEFAULT_CONFIGURATION) {
+      for(const prop in DEFAULT_CONFIGURATION) {
         callback(prop, DEFAULT_CONFIGURATION[prop])
       }
     },
 
+    /**
+     * Get configuration values from storage
+     * @param {string|Object|Function} search - Keys to retrieve or callback
+     * @param {Function} callback - Callback with retrieved values
+     */
     get: function(search, callback) {
       if (typeof search === 'function') {
         callback = search
@@ -42,24 +63,38 @@
       }
     },
 
+    /**
+     * Set configuration values in storage
+     * @param {Object} values - Key-value pairs to store
+     * @param {Function} callback - Callback after storage
+     */
     set: function(values, callback) {
       chrome.storage.local.set(values, callback)
     },
 
+    /**
+     * Listen for configuration changes
+     * @param {Function} callback - Function to call on changes
+     */
     onChanged: function(callback) {
       chrome.storage.onChanged.addListener(function(changes, namespace) {
         callback(changes)
       })
     },
 
+    /**
+     * Iterate over current configuration values
+     * @param {Function} callback - Function to call for each property
+     */
     forEachCurrent: function(callback) {
       configuration.get(function (config) {
-        for(var prop in config) {
+        for(const prop in config) {
           callback(prop, config[prop])
         }
       })
     }
   }
 
+  // Export to global scope
   window.configuration = configuration
 })()

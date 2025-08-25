@@ -1,22 +1,36 @@
-/* globals ga */
+/**
+ * Analytics Module - Placeholder for future analytics implementation
+ * Currently disabled for privacy-first approach
+ */
 
 (function() {
   'use strict'
 
-  const TRACK_ID = ''
+  // Analytics disabled by default for privacy
+  const ANALYTICS_ENABLED = false
 
-  ;(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga')
+  window.analytics = {
+    /**
+     * Track an event (currently no-op for privacy)
+     * @param {string} category - Event category
+     * @param {string} action - Event action
+     * @param {string} label - Event label (optional)
+     */
+    trackEvent: function(category, action, label) {
+      if (!ANALYTICS_ENABLED) return
 
-  ga('create', TRACK_ID, 'auto')
+      // Placeholder for future privacy-respecting analytics
+      console.debug('[Analytics]', category, action, label)
+    },
 
-  ga('set', 'checkProtocolTask', function() {}) // Removes failing protocol check. @see: http://stackoverflow.com/a/22152353/1958200
-  ga('require', 'displayfeatures')
+    /**
+     * Track a page view (currently no-op for privacy)
+     * @param {string} page - Page name
+     */
+    trackPageView: function(page) {
+      if (!ANALYTICS_ENABLED) return
 
-  ga('send', 'pageview', {
-    title: document.title,
-    page: document.URL
-  })
+      console.debug('[Analytics] Page view:', page)
+    }
+  }
 })()
