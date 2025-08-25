@@ -1,10 +1,10 @@
 <div align="center">
 
-  <img src="/icons/128.png" width="128" alt="SecureShare Logo">
+<img src="/icons/128.png" width="128" alt="SecureShare Logo">
 
-  # SecureShare
+# SecureShare
 
-  ### 🔐 Share Your Accounts Without Sharing Your Passwords
+### 🔐 Share Your Accounts Without Sharing Your Passwords
 
   [![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)](https://github.com/mrx-arafat/secure-share/releases)
   [![Manifest](https://img.shields.io/badge/manifest-v3-green?style=flat-square)](manifest.json)
@@ -47,24 +47,26 @@ SecureShare is a revolutionary Chrome extension that solves a common problem: sh
 ## 📦 Installation
 
 ### Option 1: Chrome Web Store (Recommended)
+
 *Coming soon - Currently in review*
 
 ### Option 2: Manual Installation
 
 1. **Download the Extension**
+
    ```bash
    git clone https://github.com/mrx-arafat/secure-share.git
    cd secure-share
    ```
-
 2. **Open Chrome Extensions Page**
+
    - Navigate to `chrome://extensions/`
    - Or go to Menu → More Tools → Extensions
-
 3. **Enable Developer Mode**
-   - Toggle the "Developer mode" switch in the top-right corner
 
+   - Toggle the "Developer mode" switch in the top-right corner
 4. **Load the Extension**
+
    - Click "Load unpacked"
    - Select the `secure-share` folder
    - The SecureShare icon will appear in your toolbar
@@ -78,40 +80,6 @@ SecureShare is a revolutionary Chrome extension that solves a common problem: sh
 <table>
 <tr>
 <td width="50%">
-
-**Step 1: Navigate to Website**
-- Go to any website where you're logged in
-- Click the SecureShare icon in toolbar
-
-</td>
-<td width="50%">
-
-**Step 2: Get Recipient Code**
-- Ask recipient for their unique code
-- They'll find it in "Receive Account" section
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-**Step 3: Share Session**
-- Click "Share Account"
-- Paste recipient's code
-- Set expiration time (optional)
-- Click "Share"
-
-</td>
-<td width="50%">
-
-**Step 4: Send Encrypted Data**
-- Copy the generated encrypted text
-- Send via any messaging app
-- Session is now shared securely!
-
-</td>
-</tr>
-</table>
 
 ### Receiving an Account (Recipient)
 
@@ -138,26 +106,27 @@ graph LR
 ### Encryption Process
 
 1. **🔑 Key Generation**
+
    - Each installation generates a unique EC-ElGamal key pair
    - Public key for encryption, private key for decryption
    - Keys stored locally in browser storage
-
 2. **📦 Session Packaging**
+
    - Current tab's cookies are extracted
    - Session data includes URL and expiration time
    - Data is serialized into a secure format
-
 3. **🔐 Encryption**
+
    - Data encrypted using recipient's public key
    - Only recipient's private key can decrypt
    - Uses Stanford Javascript Crypto Library (SJCL)
-
 4. **📤 Transfer**
+
    - Encrypted data converted to shareable text
    - Can be sent through any communication channel
    - No data passes through external servers
-
 5. **🔓 Restoration**
+
    - Recipient decrypts with their private key
    - Cookies are restored to browser
    - Website session becomes immediately active
@@ -168,12 +137,12 @@ graph LR
 
 ### Encryption Standards
 
-| Component | Technology | Security Level |
-|-----------|------------|---------------|
-| Algorithm | EC-ElGamal (Elliptic Curve) | Military-grade |
-| Library | Stanford Javascript Crypto Library | Industry Standard |
-| Key Size | 256-bit elliptic curve | High Security |
-| Storage | Local browser storage only | Privacy-focused |
+| Component | Technology                         | Security Level    |
+| --------- | ---------------------------------- | ----------------- |
+| Algorithm | EC-ElGamal (Elliptic Curve)        | Military-grade    |
+| Library   | Stanford Javascript Crypto Library | Industry Standard |
+| Key Size  | 256-bit elliptic curve             | High Security     |
+| Storage   | Local browser storage only         | Privacy-focused   |
 
 ### Security Features
 
@@ -244,6 +213,7 @@ secure-share/
 ## 📝 Changelog
 
 ### Version 1.0.0 (2024)
+
 - 🎉 Initial release
 - ✅ Core sharing functionality
 - ✅ EC-ElGamal encryption
@@ -292,6 +262,7 @@ Website: [profile.arafatops.com](https://profile.arafatops.com)
 ## ⭐ Support
 
 If you find SecureShare useful, please consider:
+
 - ⭐ Starring this repository
 - 🐛 Reporting bugs and issues
 - 💡 Suggesting new features
@@ -303,6 +274,6 @@ If you find SecureShare useful, please consider:
 
   **SecureShare - Because Security Shouldn't Compromise Convenience**
 
-  Made with ❤️ by [Easin Arafat](https://github.com/mrx-arafat)
+  Made by [Easin Arafat](https://github.com/mrx-arafat)
 
 </div>
