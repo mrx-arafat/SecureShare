@@ -24,6 +24,7 @@
       <section class="menu">
         <button class="btn"     data-menu="share">Share account</button>
         <button class="m-t btn" data-menu="restore">Receive account</button>
+        <button class="m-t btn" data-menu="qr-share">QR Share</button>
         <button class="m-t btn" data-menu="history">Share history</button>
       </section>
     </template>
@@ -82,6 +83,7 @@
       <div id="js-error" class="error hidden"></div>
     </template>
 
+  <!-- qr-share  for sharing accounts to mobile devices -->
 
     <template id="js-template-restore">
       <section class="restore">
@@ -116,6 +118,18 @@ Remember that the session might end at any time.' rows="10"></textarea>
       <div id="js-error" class="error hidden"></div>
     </template>
 
+    <template id="js-template-qr-share">
+      <section class="qr-share">
+        <div class="title">QR Share</div>
+        <div class="explanation">Scan the QR code to share your account</div>
+
+        <div id="js-qr-code" class="qr-code"></div>
+
+        <div class="js-go-back go-back link">&lsaquo; back</div>
+      </section>
+
+      <div id="js-error" class="error hidden"></div>
+    </template>
 
     <template id="js-template-history">
       <section class="history">
