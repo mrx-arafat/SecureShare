@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Display Fix Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #d94343;
+        }
+        .btn {
+            background: #d94343;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #c13333;
+        }
+        #qr-canvas {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+            background: white;
+        }
+        .status {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .url-display {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 15px 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 QR Display Fix Test</h1>
+        <p>Testing QR code generation and display issues.</p>
+
+        <div class="test-section">
+            <h3>🎯 Issue Analysis</h3>
+            <p>Based on your screenshot, I can see:</p>
+            <ul>
+                <li>✅ QR generation button works</li>
+                <li>❌ QR code canvas is empty (not displaying)</li>
+                <li>❌ URL shows encoded characters like %22%3E</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Test QR Generation</h3>
+            <canvas id="qr-canvas" width="200" height="200"></canvas>
+            <br>
+            <button class="btn" onclick="testBasicQR()">📱 Test Basic QR</button>
+            <button class="btn" onclick="testDataURL()">🔗 Test Data URL</button>
+            <button class="btn" onclick="testMobileURL()">📲 Test Mobile URL</button>
+            <div id="test-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Generated URL</h3>
+            <div id="url-display" class="url-display">Click a test button to see the generated URL...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>📱 Mobile Test</h3>
+            <button class="btn" onclick="openMobileTest()" id="mobile-btn" style="display: none;">🚀 Open Mobile Page</button>
+        </div>
+    </div>
+
+    <script>
+        let currentURL = null;
+
+        function showStatus(message, type = 'success') {
+            const statusEl = document.getElementById('test-status');
+            statusEl.className = `status ${type}`;
+            statusEl.innerHTML = message;
+        }
+
+        function showURL(url) {
+            const urlEl = document.getElementById('url-display');
+            urlEl.textContent = url;
+            currentURL = url;
+            document.getElementById('mobile-btn').style.display = 'inline-block';
+        }
+
+        function testBasicQR() {
+            try {
+                const canvas = document.getElementById('qr-canvas');
+                const testURL = 'https://example.com/test';
+
+                if (typeof QRious !== 'undefined') {
+                    // Clear canvas first
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Set canvas size explicitly
+                    canvas.width = 200;
+                    canvas.height = 200;
+
+                    const qr = new QRious({
+                        element: canvas,
+                        value: testURL,
+                        size: 200,
+                        level: 'M',
+                        background: '#ffffff',
+                        foreground: '#000000'
+                    });
+
+                    showStatus('✅ Basic QR code generated successfully!', 'success');
+                    showURL(testURL);
+                } else {
+                    throw new Error('QRious library not loaded');
+                }
+            } catch (error) {
+                showStatus('❌ Basic QR test failed: ' + error.message, 'error');
+            }
+        }
+
+        function testDataURL() {
+            try {
+                // Create a simple data URL
+                const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Page</title>
+</head>
+<body>
+    <h1>Test Mobile Page</h1>
+    <p>This is a test of data URL generation.</p>
+    <button onclick="alert('Success!')">Test Button</button>
+</body>
+</html>`;
+
+                const dataURL = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
+                
+                const canvas = document.getElementById('qr-canvas');
+                
+                if (typeof QRious !== 'undefined') {
+                    // Clear canvas first
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    canvas.width = 200;
+                    canvas.height = 200;
+
+                    const qr = new QRious({
+                        element: canvas,
+                        value: dataURL,
+                        size: 200,
+                        level: 'M',
+                        background: '#ffffff',
+                        foreground: '#000000'
+                    });
+
+                    showStatus('✅ Data URL QR code generated successfully!', 'success');
+                    showURL(dataURL);
+                } else {
+                    throw new Error('QRious library not loaded');
+                }
+            } catch (error) {
+                showStatus('❌ Data URL test failed: ' + error.message, 'error');
+            }
+        }
+
+        function testMobileURL() {
+            try {
+                // Create a mobile login page similar to the extension
+                const sessionData = {
+                    cookies: [
+                        { name: 'test_session', value: 'abc123', domain: '.example.com', path: '/' }
+                    ],
+                    url: 'https://example.com',
+                    title: 'Test Site',
+                    timestamp: Date.now()
+                };
+
+                const encodedData = btoa(JSON.stringify(sessionData));
+
+                const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Login Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; background: #f5f5f5; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; }
+        .btn { background: #d94343; color: white; padding: 15px 30px; border: none; border-radius: 6px; cursor: pointer; width: 100%; }
+        .status { margin: 20px 0; padding: 15px; border-radius: 8px; display: none; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Mobile Login Test</h1>
+        <p><strong>${sessionData.title}</strong></p>
+        <p>${sessionData.url}</p>
+        <button class="btn" onclick="testApplySession()">🚀 Test Apply Session</button>
+        <div id="status" class="status"></div>
+    </div>
+    <script>
+        const encodedData = ${JSON.stringify(encodedData)};
+        function testApplySession() {
+            const statusEl = document.getElementById('status');
+            try {
+                const decoded = atob(encodedData);
+                const sessionData = JSON.parse(decoded);
+                
+                statusEl.className = 'status success';
+                statusEl.innerHTML = '✅ Session data decoded successfully!<br>Found ' + sessionData.cookies.length + ' cookies';
+                statusEl.style.display = 'block';
+            } catch (e) {
+                statusEl.className = 'status error';
+                statusEl.innerHTML = '❌ Error: ' + e.message;
+                statusEl.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>`;
+
+                const dataURL = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
+                
+                const canvas = document.getElementById('qr-canvas');
+                
+                if (typeof QRious !== 'undefined') {
+                    // Clear canvas first
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    canvas.width = 200;
+                    canvas.height = 200;
+
+                    const qr = new QRious({
+                        element: canvas,
+                        value: dataURL,
+                        size: 200,
+                        level: 'M',
+                        background: '#ffffff',
+                        foreground: '#000000'
+                    });
+
+                    showStatus('✅ Mobile URL QR code generated successfully!', 'success');
+                    showURL(dataURL);
+                } else {
+                    throw new Error('QRious library not loaded');
+                }
+            } catch (error) {
+                showStatus('❌ Mobile URL test failed: ' + error.message, 'error');
+            }
+        }
+
+        function openMobileTest() {
+            if (currentURL) {
+                window.open(currentURL, '_blank', 'width=400,height=600');
+                showStatus('✅ Mobile test page opened in new window', 'success');
+            } else {
+                showStatus('❌ No URL available to test', 'error');
+            }
+        }
+
+        // Check QRious library on load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (typeof QRious !== 'undefined') {
+                    showStatus('✅ QRious library loaded successfully', 'success');
+                } else {
+                    showStatus('❌ QRious library not loaded', 'error');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -385,3 +385,91 @@ hr {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ----------------------------------------------
+  QR Share Dedicated Section */
+
+.qr-share {
+  padding: 20px;
+}
+
+.qr-generation {
+  margin: 20px 0;
+}
+
+.current-session-info {
+  background: rgba(248, 250, 252, 0.9);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(220, 38, 38, 0.1);
+  margin-bottom: 20px;
+}
+
+.session-details {
+  margin-top: 8px;
+  font-size: 0.9em;
+}
+
+.session-url {
+  color: var(--text-secondary);
+  font-size: 0.8em;
+  word-break: break-all;
+}
+
+.qr-result {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.qr-container {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 16px 0;
+  display: inline-block;
+}
+
+.qr-container canvas {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.qr-info {
+  background: rgba(59, 130, 246, 0.05);
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid rgba(59, 130, 246, 0.3);
+  margin: 20px 0;
+  text-align: left;
+}
+
+.qr-info ol {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+}
+
+.qr-info li {
+  margin: 6px 0;
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+.qr-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.qr-actions .btn {
+  flex: 1;
+  max-width: 150px;
+}
+
+.btn.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+}

@@ -7,8 +7,11 @@
 
   const cookieManager = {
     get: function(url, callback) {
+      console.log('Getting cookies for URL:', url);
       chrome.cookies.getAll({ url }, function(cookies) {
+        console.log('Raw cookies from chrome.cookies.getAll:', cookies);
         let newCookies = cookies.map(cookie => pick(cookie, properties))
+        console.log('Processed cookies:', newCookies);
         callback(newCookies)
       })
     },

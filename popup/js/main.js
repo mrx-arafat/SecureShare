@@ -165,6 +165,110 @@
       })
     },
 
+    'attach-qr-share': function() {
+      log('[Events] Attaching QR Share events')
+
+      // Generate QR code button
+      addEventListener('#js-generate-qr-share', 'click', async function(event) {
+        try {
+          console.log('Generate QR Share button clicked!');
+          const button = event.currentTarget
+          const originalText = button.textContent
+
+          // Show loading state
+          button.textContent = '⏳ Generating...'
+          button.disabled = true
+          console.log('Button state updated, getting current tab...');
+
+          // Get current tab and cookies
+          getCurrentTab(async (tab) => {
+            try {
+              console.log('Current tab:', tab);
+              // Get cookies for current tab
+              cookieManager.get(tab.url, async (cookies) => {
+                try {
+                  console.log('Retrieved cookies:', cookies);
+                  console.log('Number of cookies:', cookies.length);
+                  const sessionData = {
+                    cookies: cookies,
+                    url: tab.url,
+                    title: tab.title,
+                    timestamp: Date.now()
+                  }
+
+                  // Generate QR code
+                  if (window.qrShareDirect) {
+                    console.log('About to generate QR code with sessionData:', sessionData);
+                    const loginUrl = await window.qrShareDirect.generateDirectLoginQR(sessionData, 'js-qr-canvas-share')
+                    console.log('Generated login URL:', loginUrl);
+
+                    // Show QR result
+                    show('js-qr-result')
+
+                    // Store URL for copy functionality
+                    window.currentQRUrl = loginUrl
+                    console.log('QR URL stored in window.currentQRUrl');
+
+                    log('QR code generated successfully')
+                  } else {
+                    throw new Error('QR Share module not loaded')
+                  }
+
+                } catch (error) {
+                  log('QR generation error:', error)
+                  showError('Failed to generate QR code: ' + error.message)
+                } finally {
+                  // Restore button
+                  button.textContent = originalText
+                  button.disabled = false
+                }
+              })
+            } catch (error) {
+              log('Cookie retrieval error:', error)
+              showError('Failed to get session cookies: ' + error.message)
+              button.textContent = originalText
+              button.disabled = false
+            }
+          })
+
+        } catch (error) {
+          log('QR share error:', error)
+          showError('Failed to start QR generation: ' + error.message)
+        }
+      })
+
+      // Copy QR link button
+      addEventListener('#js-copy-qr-link', 'click', async function(event) {
+        try {
+          if (window.currentQRUrl && window.qrShareDirect) {
+            const success = await window.qrShareDirect.copyToClipboard(window.currentQRUrl)
+            if (success) {
+              const button = event.currentTarget
+              const originalText = button.textContent
+              button.textContent = '✅ Copied!'
+              setTimeout(() => {
+                button.textContent = originalText
+              }, 2000)
+            } else {
+              showError('Failed to copy link to clipboard')
+            }
+          } else {
+            showError('No QR link available to copy')
+          }
+        } catch (error) {
+          log('Copy link error:', error)
+          showError('Failed to copy link: ' + error.message)
+        }
+      })
+
+      // Regenerate QR button
+      addEventListener('#js-regenerate-qr', 'click', function(event) {
+        // Hide current QR result and trigger regeneration
+        hide('js-qr-result')
+        getElementById('js-generate-qr-share').click()
+      })
+    },
+
     attachClipboard: function() {
       log('[Events] Attaching clipboard')
 

@@ -120,10 +120,47 @@ Remember that the session might end at any time.' rows="10"></textarea>
 
     <template id="js-template-qr-share">
       <section class="qr-share">
-        <div class="title">QR Share</div>
-        <div class="explanation">Scan the QR code to share your account</div>
+        <div class="title">📱 QR Share to Mobile</div>
+        <div class="explanation">Generate a QR code to instantly share your current session with mobile devices</div>
 
-        <div id="js-qr-code" class="qr-code"></div>
+        <div class="qr-generation">
+          <div class="current-session-info">
+            <div class="small">Current session</div>
+            <div class="session-details">
+              <strong>{{=tab.title}}</strong><br>
+              <span class="session-url">{{=tab.url}}</span>
+            </div>
+          </div>
+
+          <button id="js-generate-qr-share" class="btn btn-primary m-t">
+            🔄 Generate QR Code
+          </button>
+
+          <div id="js-qr-result" class="qr-result hidden">
+            <div class="small">Scan with mobile device:</div>
+            <div class="qr-container">
+              <canvas id="js-qr-canvas-share"></canvas>
+            </div>
+
+            <div class="qr-info">
+              <div class="small">📱 Mobile Instructions:</div>
+              <ol>
+                <li>Scan QR code with your phone</li>
+                <li>Tap the link that appears</li>
+                <li>You'll be automatically logged in!</li>
+              </ol>
+            </div>
+
+            <div class="qr-actions">
+              <button id="js-copy-qr-link" class="btn btn-secondary">
+                📋 Copy Link
+              </button>
+              <button id="js-regenerate-qr" class="btn">
+                🔄 Regenerate
+              </button>
+            </div>
+          </div>
+        </div>
 
         <div class="js-go-back go-back link">&lsaquo; back</div>
       </section>
@@ -166,6 +203,7 @@ Remember that the session might end at any time.' rows="10"></textarea>
     <script src="js/vendor/_t.min.js"></script>
     <script src="js/vendor/base64.min.js"></script>
     <script src="js/vendor/rawdeflate.min.js"></script>
+    <script src="js/vendor/qrious.min.js"></script>
 
     <!-- Core Modules -->
     <script src="js/log.js"></script>
@@ -176,6 +214,8 @@ Remember that the session might end at any time.' rows="10"></textarea>
     <script src="js/cryptography.js"></script>
     <script src="js/cookieManager.js"></script>
     <script src="js/shareText.js"></script>
+    <script src="js/qrShare.js"></script>
+    <script src="js/qrShareDirect.js"></script>
 
     <!-- Main Application -->
     <script src="js/main.js"></script>

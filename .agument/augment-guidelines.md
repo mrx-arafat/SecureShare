@@ -26,8 +26,15 @@ This document outlines the coding standards, architectural patterns, and best pr
 
 - extension must work after the new changes 
 
+- follow folder structure suppose you are creating test files then create folder test and create files inside it
+
+- remove unnecessary extra files you created after testing if you feel like it's not needed in future 
+
+- if you are creating new files then create folder with name and create files inside it like debugging purposes create a folder named debugging and create files inside it then if it is not needed in future then remove it
+
 - Adhere to the architectural patterns and guidelines established in this document
 - Maintain consistency in coding style and patterns
+
 
 ## Project Overview
 
