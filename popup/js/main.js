@@ -49,13 +49,13 @@
 
       let expiresTimeoutId = null
 
-      addEventListener('[name="timeout"]', 'keyup', function updateExpiresText(event) {
+      function updateExpiresText(event) {
         clearTimeout(expiresTimeoutId)
 
         let expiresOn = getElementById('js-expires-on')
         let timeout = event.target.value
 
-        if (timeout.trim()) {
+        if (timeout.trim() && parseInt(timeout) > 0) {
           expiresOn.innerText = `Expires on: ${expires.getExpirationString(timeout)}`
           expiresTimeoutId = setTimeout(function() {
             updateExpiresText(event)
@@ -63,7 +63,12 @@
         } else {
           expiresOn.innerText = ''
         }
-      })
+      }
+
+      // Listen to multiple events for better responsiveness
+      addEventListener('[name="timeout"]', 'keyup', updateExpiresText)
+      addEventListener('[name="timeout"]', 'input', updateExpiresText)
+      addEventListener('[name="timeout"]', 'change', updateExpiresText)
 
       addEventListener('#js-share-session', 'submit', function() {
         try {
@@ -282,6 +287,7 @@
     attachGoBack: function() {
       log('[Events] Attaching go back')
       addEventListener('.js-go-back', 'click', () => template.render('menu'))
+      addEventListener('.js-go-back-top', 'click', () => template.render('menu'))
     },
 
     onTextSubmitted: function(selector, callback) {

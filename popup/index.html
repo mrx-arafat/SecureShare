@@ -32,6 +32,13 @@
 
     <template id="js-template-share">
       <section class="share">
+        <div class="back-button-top">
+          <div class="js-go-back-top go-back-top link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
         <div class="title">Current Account</div>
         <div class="explanation">You're about to share your <i>"{{=tab.title}}"</i> session.</div>
 
@@ -87,15 +94,27 @@
 
     <template id="js-template-restore">
       <section class="restore">
+        <div class="back-button-top">
+          <div class="js-go-back-top go-back-top link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
         <div class="title">Receive account</div>
         <div class="explanation">Share your code with the account owner and paste the text he shares with you below</div>
 
         <div class="your-code">
           <div class="small">Your code</div>
-          <input id="js-user-pubkey" name="pubkey" type="text" value="{{=publicKey}}" readonly />
-          <div class="action-icon" data-balloon="Copy code" data-clipboard data-clipboard-target="#js-user-pubkey"><img src="./images/copy.svg" alt="Copy code" width="12" /></div>
-
-          <div id="js-regenerate-keys" class="action-icon" data-balloon="Regenerate code. Remember that by regenerating your code you'll loose your current one forever, so you won't be able or regenerate old shares." data-balloon-length="large" data-balloon-pos="left"><img src="./images/refresh.svg" alt="Regenerate code" width="12" /></div>
+          <div class="input-container">
+            <input id="js-user-pubkey" name="pubkey" type="text" value="{{=publicKey}}" readonly />
+            <div class="action-icon" data-balloon="Copy code" data-clipboard data-clipboard-target="#js-user-pubkey">
+              <img src="./images/copy.svg" alt="Copy code" width="12" />
+            </div>
+            <div id="js-regenerate-keys" class="action-icon regenerate-icon" data-balloon="Regenerate code. Remember that by regenerating your code you'll lose your current one forever, so you won't be able to regenerate old shares." data-balloon-length="large" data-balloon-pos="left">
+              <img src="./images/refresh.svg" alt="Regenerate code" width="12" />
+            </div>
+          </div>
         </div>
 
         <form action="/" id="js-restore-session" class="m-t">
@@ -120,6 +139,13 @@ Remember that the session might end at any time.' rows="10"></textarea>
 
     <template id="js-template-qr-share">
       <section class="qr-share">
+        <div class="back-button-top">
+          <div class="js-go-back-top go-back-top link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
         <div class="title">📱 QR Share to Mobile</div>
         <div class="explanation">Generate a QR code to instantly share your current session with mobile devices</div>
 
@@ -170,6 +196,13 @@ Remember that the session might end at any time.' rows="10"></textarea>
 
     <template id="js-template-history">
       <section class="history">
+        <div class="back-button-top">
+          <div class="js-go-back-top go-back-top link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
         <div class="title">Shared accounts</div>
         <div class="explanation">We only keep track of URLs and titles and only for a month, nothing else is stored</div>
 

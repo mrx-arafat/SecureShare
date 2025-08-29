@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureShare UI Preview - Modern Dark Theme</title>
+    <link rel="stylesheet" href="../popup/css/styles.css">
+    <style>
+        /* Preview specific styles */
+        body {
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1200px;
+        }
+        
+        .preview-section {
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+            box-shadow: var(--shadow-glass);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .preview-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+            text-align: center;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="body">
+    <div class="preview-container">
+        <!-- Main App Preview -->
+        <div class="app">
+            <div class="preview-title">SecureShare - Modern UI Preview</div>
+            
+            <!-- Menu Section -->
+            <div class="menu-app-logo">
+                <img src="../popup/images/header-logo.png" alt="Secure Share logo" width="110">
+            </div>
+
+            <section class="menu">
+                <button class="btn" data-menu="share">Share account</button>
+                <button class="m-t btn" data-menu="restore">Receive account</button>
+                <button class="m-t btn" data-menu="qr-share">QR Share</button>
+                <button class="m-t btn" data-menu="history">Share history</button>
+            </section>
+        </div>
+        
+        <!-- Share Form Preview -->
+        <div class="preview-section">
+            <div class="preview-title">Share Form</div>
+            <div class="share">
+                <div class="title">Current Account</div>
+                <div class="explanation">You're about to share your session securely.</div>
+                
+                <div class="your-code">
+                    <div class="small">Your code</div>
+                    <div class="flex-container">
+                        <input type="text" value="ABC123XYZ789" readonly />
+                        <div class="action-icon">
+                            <img src="../popup/images/copy.svg" alt="Copy" width="12" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-container">
+                    <div class="small">Recipient code <span class="link">?</span></div>
+                    <input type="text" placeholder="Code of the computer you're sharing with" />
+                </div>
+
+                <div class="timeout-container">
+                    <div class="small">Timeout in hours <span class="link">?</span></div>
+                    <input type="number" placeholder="It'll last a week by default." min="1" />
+                    <div class="expires-on">Expires: Tomorrow 2:30 PM</div>
+                </div>
+                
+                <div class="flex-container">
+                    <div class="go-back">‹ back</div>
+                    <button class="btn btn-primary">Share</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- History Preview -->
+        <div class="preview-section">
+            <div class="preview-title">Share History</div>
+            <div class="history">
+                <div class="title">Shared accounts</div>
+                <div class="explanation">Recent sharing activity</div>
+                
+                <div class="sessions">
+                    <h5>
+                        Shared on Dec 25, 2024
+                        <span class="delete">×</span>
+                    </h5>
+                    <ul>
+                        <li>
+                            <a class="session-url" href="#" target="_blank">
+                                GitHub - Secure Development Platform
+                            </a>
+                        </li>
+                        <li>
+                            <a class="session-url" href="#" target="_blank">
+                                Gmail - Professional Email Service
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <h5>
+                        Shared on Dec 24, 2024
+                        <span class="delete">×</span>
+                    </h5>
+                    <ul>
+                        <li>
+                            <a class="session-url" href="#" target="_blank">
+                                AWS Console - Cloud Management
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="go-back">← back</div>
+            </div>
+        </div>
+        
+        <!-- Button Variants Preview -->
+        <div class="preview-section">
+            <div class="preview-title">Button Variants</div>
+            <div class="flex-col">
+                <button class="btn">Default Button</button>
+                <button class="btn btn-primary">Primary Button</button>
+                <button class="btn btn-secondary">Secondary Button</button>
+                <button class="btn btn-outline">Outline Button</button>
+                <button class="btn" disabled>Disabled Button</button>
+            </div>
+        </div>
+        
+        <!-- Form Elements Preview -->
+        <div class="preview-section">
+            <div class="preview-title">Form Elements</div>
+            <div class="flex-col">
+                <input type="text" placeholder="Text input placeholder" value="Sample text input" />
+                <input type="number" placeholder="Number input" min="1" value="123" />
+                <input type="text" placeholder="Empty input to test placeholder" />
+                <textarea placeholder="Textarea placeholder" rows="3">Sample textarea content</textarea>
+                <textarea placeholder="Empty textarea to test placeholder" rows="2"></textarea>
+                <div class="flex-container">
+                    <input type="text" value="Read-only input with text" readonly />
+                    <div class="action-icon">
+                        <img src="../popup/images/copy.svg" alt="Copy" width="12" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Add some interactivity for preview
+        document.querySelectorAll('.btn:not([disabled])').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btn.style.transform = '';
+                }, 150);
+            });
+        });
+        
+        // Add fade-in animation
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.preview-section, .app').forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    el.style.transition = 'all 0.5s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

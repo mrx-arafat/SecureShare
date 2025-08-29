@@ -1,3 +1,7 @@
+---
+type: "manual"
+---
+
 # SecureShare Development Guidelines
 
 ## Introduction

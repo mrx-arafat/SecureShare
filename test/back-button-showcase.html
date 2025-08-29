@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Back Button Showcase - SecureShare</title>
+    <link rel="stylesheet" href="../popup/css/styles.css">
+    <style>
+        body {
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+        
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .template-demo {
+            width: 100%;
+            max-width: 32rem;
+            min-height: 20rem;
+        }
+        
+        .info-panel {
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+            box-shadow: var(--shadow-md);
+            max-width: 800px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .info-panel h2 {
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .info-panel p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .template-label {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-md);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+        
+        .feature-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-sm);
+            display: block;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+        
+        .feature-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body class="body">
+    <div class="info-panel">
+        <h2>🔄 Modern Arrow Icon Back Button</h2>
+        <p>All templates now feature a clean arrow icon back button with proper spacing and modern SVG graphics for consistent navigation.</p>
+        
+        <div class="features-list">
+            <div class="feature-item">
+                <span class="feature-icon">🎯</span>
+                <div class="feature-title">Arrow Icon</div>
+                <div class="feature-desc">Clean SVG arrow instead of text</div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🎨</span>
+                <div class="feature-title">Perfect Spacing</div>
+                <div class="feature-desc">Reduced gap between button and title</div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✨</span>
+                <div class="feature-title">Modern Design</div>
+                <div class="feature-desc">Professional SVG graphics</div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">📱</span>
+                <div class="feature-title">Consistent</div>
+                <div class="feature-desc">Same design across all templates</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="showcase-grid">
+        <!-- Share Template -->
+        <div class="template-demo">
+            <div class="template-label">Share Template</div>
+            <div class="app">
+                <section class="share">
+                    <div class="back-button-top">
+                        <div class="js-go-back-top go-back-top link">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="title">Current Account</div>
+                    <div class="explanation">Share your session with others</div>
+                    
+                    <div class="input-container">
+                        <input type="text" placeholder="Recipient code" />
+                    </div>
+                    
+                    <div class="input-container timeout-container">
+                        <input type="number" placeholder="Timeout in hours" />
+                    </div>
+                </section>
+            </div>
+        </div>
+        
+        <!-- Restore Template -->
+        <div class="template-demo">
+            <div class="template-label">Receive Template</div>
+            <div class="app">
+                <section class="restore">
+                    <div class="back-button-top">
+                        <div class="js-go-back-top go-back-top link">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="title">Receive account</div>
+                    <div class="explanation">Receive shared sessions from others</div>
+                    
+                    <div class="your-code">
+                        <div class="small">Your code</div>
+                        <div class="input-container">
+                            <input type="text" value="ABC123XYZ789" readonly />
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        
+        <!-- QR Share Template -->
+        <div class="template-demo">
+            <div class="template-label">QR Share Template</div>
+            <div class="app">
+                <section class="qr-share">
+                    <div class="back-button-top">
+                        <div class="js-go-back-top go-back-top link">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="title">📱 QR Share to Mobile</div>
+                    <div class="explanation">Generate QR codes for mobile sharing</div>
+                    
+                    <div class="qr-generation">
+                        <button class="btn btn-primary">🔄 Generate QR Code</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+        
+        <!-- History Template -->
+        <div class="template-demo">
+            <div class="template-label">History Template</div>
+            <div class="app">
+                <section class="history">
+                    <div class="back-button-top">
+                        <div class="js-go-back-top go-back-top link">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="title">Shared accounts</div>
+                    <div class="explanation">View your sharing history</div>
+                    
+                    <div class="sessions">
+                        <div class="small">Recent shares will appear here</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Add interactive functionality
+        document.querySelectorAll('.go-back-top').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert(`Back button clicked! (${btn.closest('section').className} template)`);
+            });
+        });
+        
+        // Animate buttons on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = document.querySelectorAll('.go-back-top');
+            buttons.forEach((btn, index) => {
+                btn.style.opacity = '0';
+                btn.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    btn.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                    btn.style.opacity = '1';
+                    btn.style.transform = 'scale(1)';
+                }, index * 200 + 500);
+            });
+        });
+    </script>
+</body>
+</html>

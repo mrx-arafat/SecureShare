@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Width Test - SecureShare</title>
+    <link rel="stylesheet" href="../popup/css/styles.css">
+    <style>
+        body {
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+        
+        .width-comparison {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .old-width {
+            width: 28rem;
+            max-height: 45rem;
+            min-height: 32rem;
+        }
+        
+        .new-width {
+            width: 32rem;
+            max-width: 32rem;
+            max-height: 48rem;
+            min-height: 32rem;
+            min-width: 32rem;
+        }
+        
+        .width-label {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-md);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .comparison-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .info-panel {
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+            box-shadow: var(--shadow-md);
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .info-panel h2 {
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .info-panel p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .width-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: var(--space-xs);
+        }
+    </style>
+</head>
+<body class="body">
+    <div class="info-panel">
+        <h2>Extension Popup Width Improvement</h2>
+        <p>The SecureShare extension popup has been widened to provide a better user experience with more comfortable spacing and improved readability.</p>
+        
+        <div class="width-stats">
+            <div class="stat-item">
+                <span class="stat-value">28rem</span>
+                <div class="stat-label">Old Width (448px)</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">32rem</span>
+                <div class="stat-label">New Width (512px)</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">+64px</span>
+                <div class="stat-label">Width Increase</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">+14%</span>
+                <div class="stat-label">Size Improvement</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="width-comparison">
+        <div class="comparison-container">
+            <div class="width-label">Old Width (28rem / 448px)</div>
+            <div class="app old-width">
+                <div class="menu-app-logo">
+                    <img src="../popup/images/header-logo.png" alt="Secure Share logo" width="110">
+                </div>
+
+                <section class="menu">
+                    <button class="btn" data-menu="share">Share account</button>
+                    <button class="m-t btn" data-menu="restore">Receive account</button>
+                    <button class="m-t btn" data-menu="qr-share">QR Share</button>
+                    <button class="m-t btn" data-menu="history">Share history</button>
+                </section>
+            </div>
+        </div>
+        
+        <div class="comparison-container">
+            <div class="width-label">New Width (32rem / 512px)</div>
+            <div class="app new-width">
+                <div class="menu-app-logo">
+                    <img src="../popup/images/header-logo.png" alt="Secure Share logo" width="110">
+                </div>
+
+                <section class="menu">
+                    <button class="btn" data-menu="share">Share account</button>
+                    <button class="m-t btn" data-menu="restore">Receive account</button>
+                    <button class="m-t btn" data-menu="qr-share">QR Share</button>
+                    <button class="m-t btn" data-menu="history">Share history</button>
+                </section>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info-panel">
+        <h3 style="color: var(--text-primary); margin-bottom: var(--space-md);">Benefits of Increased Width</h3>
+        <div style="text-align: left;">
+            <p>✅ <strong>Better Readability:</strong> More space for text content and form elements</p>
+            <p>✅ <strong>Improved UX:</strong> Less cramped interface with comfortable spacing</p>
+            <p>✅ <strong>Modern Design:</strong> Follows current design trends for extension popups</p>
+            <p>✅ <strong>Better Form Layout:</strong> Input fields and buttons have more breathing room</p>
+            <p>✅ <strong>Enhanced Accessibility:</strong> Larger touch targets and better visual hierarchy</p>
+        </div>
+    </div>
+    
+    <script>
+        // Add some interactivity
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btn.style.transform = '';
+                }, 150);
+            });
+        });
+        
+        // Animate the comparison on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const containers = document.querySelectorAll('.comparison-container');
+            containers.forEach((container, index) => {
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    container.style.transition = 'all 0.5s ease';
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                }, index * 200 + 500);
+            });
+        });
+    </script>
+</body>
+</html>

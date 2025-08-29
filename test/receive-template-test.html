@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receive Template Test - SecureShare</title>
+    <link rel="stylesheet" href="../popup/css/styles.css">
+    <style>
+        body {
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .demo-container {
+            width: 32rem;
+            max-width: 32rem;
+            max-height: 48rem;
+            min-height: 32rem;
+            min-width: 32rem;
+        }
+        
+        .info-panel {
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+            box-shadow: var(--shadow-md);
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .info-panel h3 {
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .info-panel p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--space-sm);
+            font-size: 0.875rem;
+        }
+        
+        .improvements-list {
+            text-align: left;
+            margin-top: var(--space-md);
+        }
+        
+        .improvements-list li {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="body">
+    <div class="info-panel">
+        <h3>🔧 Improvements Made</h3>
+        <p><strong>Back Button:</strong></p>
+        <ul class="improvements-list">
+            <li>✅ Made wider (2.25rem width)</li>
+            <li>✅ Increased arrow size (1rem)</li>
+            <li>✅ Added bottom margin</li>
+        </ul>
+        
+        <p><strong>Copy/Regenerate Buttons:</strong></p>
+        <ul class="improvements-list">
+            <li>✅ Removed transparency</li>
+            <li>✅ Solid background colors</li>
+            <li>✅ Better visibility</li>
+            <li>✅ Improved hover states</li>
+        </ul>
+    </div>
+
+    <div class="app demo-container">
+        <!-- Receive Template -->
+        <section class="restore">
+            <div class="back-button-top">
+                <div class="js-go-back-top go-back-top link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="title">Receive account</div>
+            <div class="explanation">Share your code with the account owner and paste the text he shares with you below</div>
+
+            <div class="your-code">
+                <div class="small">Your code</div>
+                <div class="input-container">
+                    <input id="js-user-pubkey" name="pubkey" type="text" value="c8f203bba44a8f7ac73aee28124cd2c65ad2f8c1" readonly />
+                    <div class="action-icon" data-balloon="Copy code" data-clipboard data-clipboard-target="#js-user-pubkey">
+                        <img src="../popup/images/copy.svg" alt="Copy code" width="12" />
+                    </div>
+                    <div id="js-regenerate-keys" class="action-icon regenerate-icon" data-balloon="Regenerate code. Remember that by regenerating your code you'll lose your current one forever, so you won't be able to regenerate old shares." data-balloon-length="large" data-balloon-pos="left">
+                        <img src="../popup/images/refresh.svg" alt="Regenerate code" width="12" />
+                    </div>
+                </div>
+            </div>
+
+            <form action="/" id="js-restore-session" class="m-t">
+                <div>
+                    <div class="small">Share result <span class="link" data-balloon="Paste the share result here. If you gave the sender your code, you'll be the only one able to decrypt it." data-balloon-length="medium" data-balloon-pos="right">?</span></div>
+
+                    <textarea name="encrypted-data" placeholder='For example: {"iv":"C+Qfxtx6UM6YkQ7glsVsLg==", "v":1, "iter":10000, "ks":128, "ts":64, "mode":"ccm", "adata":"", "cipher":"aes", "kemtag":"dJN3vJbV4C", "ct":"psRDxcWb"}
+
+Remember that the session might end at any time.' rows="10"></textarea>
+                    <div id="js-restore-notice" class="explanation"></div>
+                </div>
+
+                <div class="restore-session-actions flex-container">
+                    <div class="js-go-back go-back link">&lsaquo; back</div>
+                    <input type="submit" name="submit" class="btn pull-right" value="Receive" disabled />
+                </div>
+            </form>
+        </section>
+    </div>
+    
+    <script>
+        // Add interactive functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const backBtn = document.querySelector('.js-go-back-top');
+            const copyBtn = document.querySelector('.action-icon[data-clipboard]');
+            const regenerateBtn = document.querySelector('#js-regenerate-keys');
+            const bottomBackBtn = document.querySelector('.js-go-back');
+            const submitBtn = document.querySelector('input[type="submit"]');
+            const textarea = document.querySelector('textarea');
+            
+            // Back button functionality
+            backBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Back button clicked! (Top)');
+            });
+            
+            bottomBackBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Back button clicked! (Bottom)');
+            });
+            
+            // Copy functionality
+            copyBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Code copied to clipboard! (demo)');
+            });
+            
+            // Regenerate functionality
+            regenerateBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to regenerate your code? This will invalidate your current code forever.')) {
+                    alert('Code regenerated! (demo)');
+                }
+            });
+            
+            // Form validation
+            textarea.addEventListener('input', () => {
+                submitBtn.disabled = textarea.value.trim().length === 0;
+            });
+            
+            // Form submission
+            document.getElementById('js-restore-session').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Receive form submitted! (demo)');
+            });
+            
+            // Add some sample data after delay
+            setTimeout(() => {
+                textarea.value = '{"iv":"C+Qfxtx6UM6YkQ7glsVsLg==", "v":1, "iter":10000, "ks":128, "ts":64, "mode":"ccm", "adata":"", "cipher":"aes", "kemtag":"dJN3vJbV4C", "ct":"psRDxcWb"}';
+                submitBtn.disabled = false;
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

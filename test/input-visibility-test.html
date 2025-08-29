@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Field Visibility Test</title>
+    <link rel="stylesheet" href="../popup/css/styles.css">
+    <style>
+        body {
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .test-container {
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+            box-shadow: var(--shadow-glass);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .test-section {
+            margin-bottom: var(--space-xl);
+            padding: var(--space-lg);
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+        }
+        
+        .test-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+            text-align: center;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .test-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+            display: block;
+        }
+        
+        .test-input {
+            margin-bottom: var(--space-lg);
+        }
+        
+        .visibility-check {
+            background: var(--bg-secondary);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            margin-top: var(--space-sm);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body class="body">
+    <div class="test-container">
+        <div class="test-title">Input Field Visibility Test</div>
+        
+        <div class="test-section">
+            <h3 style="color: var(--text-primary); margin-bottom: var(--space-lg);">Text Input Tests</h3>
+            
+            <div class="test-input">
+                <label class="test-label">Regular Text Input with Value:</label>
+                <input type="text" value="This text should be clearly visible" />
+                <div class="visibility-check">✓ Text should be white (#ffffff) on semi-transparent background</div>
+            </div>
+            
+            <div class="test-input">
+                <label class="test-label">Text Input with Placeholder:</label>
+                <input type="text" placeholder="This placeholder should be visible" />
+                <div class="visibility-check">✓ Placeholder should be light gray and readable</div>
+            </div>
+            
+            <div class="test-input">
+                <label class="test-label">Readonly Input:</label>
+                <input type="text" value="Readonly text should be visible" readonly />
+                <div class="visibility-check">✓ Readonly text should be clearly visible</div>
+            </div>
+            
+            <div class="test-input">
+                <label class="test-label">Number Input:</label>
+                <input type="number" value="12345" min="1" />
+                <div class="visibility-check">✓ Number should be clearly visible</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3 style="color: var(--text-primary); margin-bottom: var(--space-lg);">Textarea Tests</h3>
+            
+            <div class="test-input">
+                <label class="test-label">Textarea with Content:</label>
+                <textarea rows="3">This is sample textarea content that should be clearly visible against the glassmorphism background.</textarea>
+                <div class="visibility-check">✓ Textarea content should be white and readable</div>
+            </div>
+            
+            <div class="test-input">
+                <label class="test-label">Empty Textarea with Placeholder:</label>
+                <textarea rows="2" placeholder="This placeholder should be visible in the textarea"></textarea>
+                <div class="visibility-check">✓ Textarea placeholder should be visible</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3 style="color: var(--text-primary); margin-bottom: var(--space-lg);">Focus State Tests</h3>
+            
+            <div class="test-input">
+                <label class="test-label">Click to Focus (should enhance visibility):</label>
+                <input type="text" value="Focus this input to test enhanced visibility" />
+                <div class="visibility-check">✓ Focus should make background more opaque and add red border</div>
+            </div>
+            
+            <div class="test-input">
+                <label class="test-label">Type in this field:</label>
+                <input type="text" placeholder="Start typing to test real-time visibility" />
+                <div class="visibility-check">✓ Text should appear clearly as you type</div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: var(--space-xl);">
+            <button class="btn btn-primary" onclick="runVisibilityTest()">Run Automated Test</button>
+        </div>
+        
+        <div id="test-results" style="margin-top: var(--space-lg); display: none;">
+            <h4 style="color: var(--text-primary);">Test Results:</h4>
+            <div id="results-content" style="color: var(--text-secondary); font-size: 0.875rem;"></div>
+        </div>
+    </div>
+    
+    <script>
+        function runVisibilityTest() {
+            const results = [];
+            const inputs = document.querySelectorAll('input, textarea');
+            
+            inputs.forEach((input, index) => {
+                const computedStyle = window.getComputedStyle(input);
+                const color = computedStyle.color;
+                const backgroundColor = computedStyle.backgroundColor;
+                
+                results.push(`Input ${index + 1}: Color: ${color}, Background: ${backgroundColor}`);
+            });
+            
+            const resultsDiv = document.getElementById('test-results');
+            const resultsContent = document.getElementById('results-content');
+            
+            resultsContent.innerHTML = results.map(result => `<div>${result}</div>`).join('');
+            resultsDiv.style.display = 'block';
+        }
+        
+        // Add visual feedback for focus states
+        document.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('focus', () => {
+                console.log('Input focused:', input.value || input.placeholder);
+            });
+            
+            input.addEventListener('input', (e) => {
+                console.log('Input changed:', e.target.value);
+            });
+        });
+    </script>
+</body>
+</html>
