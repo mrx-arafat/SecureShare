@@ -17,6 +17,7 @@ This document outlines the coding standards, architectural patterns, and best pr
 - **NEVER** use `git reset --hard` or any commands that would require force pushing
 - Test functionality thoroughly before any git operations
 
+
 ### 2. Understand the Problem Before Making Changes
 
 - Fully investigate and understand the issue before proposing solutions
@@ -35,7 +36,6 @@ This document outlines the coding standards, architectural patterns, and best pr
 - remove unnecessary extra files you created after testing if you feel like it's not needed in future 
 
 - if you are creating new files then create folder with name and create files inside it like debugging purposes create a folder named debugging and create files inside it then if it is not needed in future then remove it
-
 - Adhere to the architectural patterns and guidelines established in this document
 - Maintain consistency in coding style and patterns
 
