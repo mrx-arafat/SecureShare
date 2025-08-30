@@ -19,9 +19,22 @@
       log('Generating direct login QR code')
       
       try {
+        // Check if we have valid session data
+        if (!sessionData || !sessionData.url) {
+          throw new Error('Invalid session data: missing URL')
+        }
+
+        // Check for non-shareable URLs
+        const url = sessionData.url.toLowerCase()
+        if (url.startsWith('chrome://') || url.startsWith('chrome-extension://') ||
+            url.startsWith('moz-extension://') || url.startsWith('about:') ||
+            url.startsWith('file://') || url === 'about:blank') {
+          throw new Error('Cannot share browser internal pages. Please navigate to a website first.')
+        }
+
         // Create a direct login URL
         const loginUrl = await this.createDirectLoginUrl(sessionData)
-        
+
         // Generate QR code
         const canvas = document.getElementById(canvasId)
         if (!canvas) {
@@ -29,12 +42,21 @@
         }
 
         log('Canvas element found, generating QR code...')
+        log('Session URL:', sessionData.url)
+
+        // Show loading state
+        this.showQRLoading(true)
+        this.hideQROverlay(false) // Show overlay initially
 
         // Method 1: QRious library (primary)
         if (typeof QRious !== 'undefined') {
           try {
             log('QRious library found, generating QR code...')
             log('Login URL to encode:', loginUrl.substring(0, 100) + '...')
+
+            // Clear canvas first
+            const ctx = canvas.getContext('2d')
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
 
             // Ensure canvas is properly sized and visible
             canvas.width = 200
@@ -53,12 +75,17 @@
             })
 
             log('QR Code generated successfully with QRious')
-            log('QR instance:', qr)
+
+            // Hide loading and overlay, show success
+            this.showQRLoading(false)
+            this.hideQROverlay(true)
+            this.updateQRStatus('✅ QR Code ready!', 'success')
 
             return loginUrl
           } catch (error) {
             log('QRious generation error:', error)
             console.error('QRious error details:', error)
+            // Fall through to API method
           }
         } else {
           log('QRious library not found, falling back to API method')
@@ -69,30 +96,61 @@
           const qrSize = 200
           const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(loginUrl)}`
 
-          // Create an image element and draw it to canvas
-          const img = new Image()
-          img.crossOrigin = 'anonymous'
-          img.onload = function() {
-            const ctx = canvas.getContext('2d')
-            canvas.width = qrSize
-            canvas.height = qrSize
-            ctx.drawImage(img, 0, 0, qrSize, qrSize)
-            log('QR Code generated successfully with QR Server API')
-          }
-          img.onerror = function() {
-            log('QR Server API failed, using text fallback')
-            qrShareDirect.showTextFallback(canvas, loginUrl)
-          }
-          img.src = qrApiUrl
-          return loginUrl
+          return new Promise((resolve, reject) => {
+            // Create an image element and draw it to canvas
+            const img = new Image()
+            img.crossOrigin = 'anonymous'
+
+            img.onload = () => {
+              try {
+                const ctx = canvas.getContext('2d')
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                canvas.width = qrSize
+                canvas.height = qrSize
+                ctx.drawImage(img, 0, 0, qrSize, qrSize)
+
+                log('QR Code generated successfully with QR Server API')
+                this.showQRLoading(false)
+                this.hideQROverlay(true)
+                this.updateQRStatus('✅ QR Code ready!', 'success')
+                resolve(loginUrl)
+              } catch (drawError) {
+                log('Canvas drawing error:', drawError)
+                this.showQRFallback(loginUrl)
+                resolve(loginUrl)
+              }
+            }
+
+            img.onerror = () => {
+              log('QR Server API failed, using text fallback')
+              this.showQRFallback(loginUrl)
+              resolve(loginUrl)
+            }
+
+            img.src = qrApiUrl
+          })
+
         } catch (error) {
           log('QR Server API error:', error)
-          // Method 3: Text fallback
-          this.showTextFallback(canvas, loginUrl)
+          this.showQRFallback(loginUrl)
           return loginUrl
         }
       } catch (error) {
-        log('Error generating QR code:', error)
+        log('QR generation failed:', error)
+        this.showQRLoading(false)
+
+        // Show user-friendly error messages
+        if (error.message.includes('Cannot share browser internal pages')) {
+          this.updateQRStatus('⚠️ Cannot share this page', 'warning')
+          this.showQRFallback('Please navigate to a website (like google.com) and try again.')
+        } else if (error.message.includes('Canvas element not found')) {
+          this.updateQRStatus('❌ UI Error', 'error')
+        } else if (error.message.includes('Invalid session data')) {
+          this.updateQRStatus('❌ No session data', 'error')
+        } else {
+          this.updateQRStatus('❌ Generation failed', 'error')
+        }
+
         throw error
       }
     },
@@ -493,23 +551,115 @@
     },
 
     /**
+     * Show/hide QR loading state
+     * @param {boolean} show - Whether to show loading
+     */
+    showQRLoading: function(show) {
+      const loadingEl = document.getElementById('js-qr-loading')
+      if (loadingEl) {
+        loadingEl.style.display = show ? 'flex' : 'none'
+      }
+    },
+
+    /**
+     * Hide/show QR overlay
+     * @param {boolean} hide - Whether to hide overlay
+     */
+    hideQROverlay: function(hide) {
+      const overlayEl = document.getElementById('js-qr-overlay')
+      const containerEl = document.querySelector('.qr-container')
+      if (overlayEl) {
+        overlayEl.style.display = hide ? 'none' : 'flex'
+      }
+      if (containerEl) {
+        if (hide) {
+          containerEl.classList.add('qr-generated')
+        } else {
+          containerEl.classList.remove('qr-generated')
+        }
+      }
+    },
+
+    /**
+     * Update QR status message
+     * @param {string} message - Status message
+     * @param {string} type - Status type (success, error, warning)
+     */
+    updateQRStatus: function(message, type = 'success') {
+      const statusEl = document.getElementById('js-qr-status')
+      if (statusEl) {
+        statusEl.textContent = message
+        statusEl.className = 'qr-status'
+        if (type === 'error') {
+          statusEl.classList.add('qr-status-error')
+        } else if (type === 'warning') {
+          statusEl.classList.add('qr-status-warning')
+        } else {
+          statusEl.classList.add('qr-status-success')
+        }
+      }
+    },
+
+    /**
+     * Show QR fallback when generation fails
+     * @param {string} url - URL to display in fallback
+     */
+    showQRFallback: function(url) {
+      const fallbackEl = document.getElementById('js-qr-fallback')
+      const fallbackUrlEl = document.getElementById('js-fallback-url')
+
+      if (fallbackEl && fallbackUrlEl) {
+        fallbackUrlEl.textContent = url
+        fallbackEl.style.display = 'block'
+        this.showQRLoading(false)
+
+        // Store URL for copy functionality if it's a valid URL
+        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+          window.currentQRUrl = url
+          this.updateQRStatus('⚠️ Using fallback method', 'warning')
+        } else {
+          this.updateQRStatus('⚠️ Cannot share this page', 'warning')
+        }
+      }
+    },
+
+    /**
      * Copy URL to clipboard
      * @param {string} url - URL to copy
      * @returns {Promise<boolean>} Success status
      */
     copyToClipboard: async function(url) {
       try {
+        if (!url || typeof url !== 'string') {
+          log('Invalid URL provided for copying:', url)
+          return false
+        }
+
+        log('Attempting to copy URL to clipboard:', url.substring(0, 50) + '...')
+
         if (navigator.clipboard) {
           await navigator.clipboard.writeText(url)
+          log('URL copied to clipboard successfully')
           return true
         } else {
           // Fallback for older browsers
+          log('Using fallback clipboard method')
           const textArea = document.createElement('textarea')
           textArea.value = url
+          textArea.style.position = 'fixed'
+          textArea.style.left = '-999999px'
+          textArea.style.top = '-999999px'
           document.body.appendChild(textArea)
+          textArea.focus()
           textArea.select()
           const success = document.execCommand('copy')
           document.body.removeChild(textArea)
+
+          if (success) {
+            log('URL copied using fallback method')
+          } else {
+            log('Failed to copy using fallback method')
+          }
           return success
         }
       } catch (error) {

@@ -15,18 +15,38 @@
 
 
     <template id="js-template-menu">
-      <div class="menu-app-logo">
-        <a href="https://profile.arafatops.com" target="_blank">
-          <img src="./images/header-logo.png" alt="Secure Share logo" width="110">
-        </a>
-      </div>
+      <div class="menu">
+        <div class="menu-app-logo">
+          <a href="https://profile.arafatops.com" target="_blank">
+            <img src="./images/header-logo.png" alt="Secure Share logo" width="120">
+          </a>
+          <div class="app-tagline">Share accounts securely without passwords</div>
+        </div>
 
-      <section class="menu">
-        <button class="btn"     data-menu="share">Share account</button>
-        <button class="m-t btn" data-menu="restore">Receive account</button>
-        <button class="m-t btn" data-menu="qr-share">QR Share</button>
-        <button class="m-t btn" data-menu="history">Share history</button>
-      </section>
+        <div class="menu-actions">
+          <button class="btn btn-primary" data-menu="share">
+            <span class="btn-icon">🔐</span>
+            <span class="btn-text">Share Session</span>
+          </button>
+          <button class="btn btn-secondary" data-menu="restore">
+            <span class="btn-icon">🔓</span>
+            <span class="btn-text">Restore Session</span>
+          </button>
+          <button class="btn btn-secondary" data-menu="qr-share">
+            <span class="btn-icon">📱</span>
+            <span class="btn-text">QR Share to Mobile</span>
+          </button>
+          <button class="btn btn-secondary" data-menu="history">
+            <span class="btn-icon">📋</span>
+            <span class="btn-text">Session History</span>
+          </button>
+        </div>
+
+        <div class="menu-footer">
+          <div class="version-info">v1.2.1</div>
+          <div class="privacy-note">🔒 All data encrypted locally</div>
+        </div>
+      </div>
     </template>
 
 
@@ -39,26 +59,29 @@
             </svg>
           </div>
         </div>
-        <div class="title">Current Account</div>
-        <div class="explanation">You're about to share your <i>"{{=tab.title}}"</i> session.</div>
+        <div class="title">🔐 Share Current Session</div>
+        <div class="explanation">Share your <strong>"{{=tab.title}}"</strong> session securely with another device.</div>
 
-        <form action="/" id="js-share-session" class="m-t">
-          <div class="small">Recipient code <span class="link" data-balloon="Paste the code of the person you want to share your extension with. It can be found on the 'Receive account' section." data-balloon-length="medium-xl" data-balloon-pos="right">?</span></div>
-
+        <form action="/" id="js-share-session">
           <div class="input-container">
-            <input type="text" name="pubkey" value="" placeholder="Code of the computer you're sharing with" autocomplete="off" required />
+            <div class="small">👤 Recipient code <span class="link" data-balloon="Paste the code of the person you want to share your extension with. It can be found on the 'Receive account' section." data-balloon-length="medium-xl" data-balloon-pos="right">?</span></div>
+            <input type="text" name="pubkey" value="" placeholder="Enter the recipient's device code" autocomplete="off" required />
           </div>
 
-          <div class="small">Timeout in hours <span class="link" data-balloon="Explanation." data-balloon-length="medium" data-balloon-pos="right">?</span></div>
-
           <div class="input-container timeout-container">
-            <input type="number" name="timeout" value="" min="1" placeholder="It'll last a week by default." autocomplete="off" />
+            <div class="small">⏰ Session timeout (hours) <span class="link" data-balloon="How long the shared session will remain active. Default is 168 hours (1 week)." data-balloon-length="medium" data-balloon-pos="right">?</span></div>
+            <input type="number" name="timeout" value="" min="1" max="720" placeholder="168 (1 week default)" autocomplete="off" />
             <div id="js-expires-on" class="expires-on"></div>
           </div>
 
           <div class="flex-container">
-            <div class="js-go-back go-back link">&lsaquo; back</div>
-            <input type="submit" name="submit" class="btn pull-right" value="Share" disabled />
+            <div class="js-go-back go-back link">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>back</span>
+            </div>
+            <input type="submit" name="submit" class="btn btn-primary" value="🔐 Share Session" disabled />
           </div>
         </form>
 
@@ -101,17 +124,18 @@
             </svg>
           </div>
         </div>
-        <div class="title">Receive account</div>
-        <div class="explanation">Share your code with the account owner and paste the text he shares with you below</div>
+        <div class="title">🔓 Restore Session</div>
+        <div class="explanation">Share your device code with the sender, then paste their encrypted session data below.</div>
 
         <div class="your-code">
-          <div class="small">Your code</div>
+          <div class="small">📱 Your device code</div>
+          <div class="code-description">Share this code with the person who wants to send you a session:</div>
           <div class="input-container">
             <input id="js-user-pubkey" name="pubkey" type="text" value="{{=publicKey}}" readonly />
-            <div class="action-icon" data-balloon="Copy code" data-clipboard data-clipboard-target="#js-user-pubkey">
+            <div class="action-icon" data-balloon="Copy your device code" data-clipboard data-clipboard-target="#js-user-pubkey">
               <img src="./images/copy.svg" alt="Copy code" width="12" />
             </div>
-            <div id="js-regenerate-keys" class="action-icon regenerate-icon" data-balloon="Regenerate code. Remember that by regenerating your code you'll lose your current one forever, so you won't be able to regenerate old shares." data-balloon-length="large" data-balloon-pos="left">
+            <div id="js-regenerate-keys" class="action-icon regenerate-icon" data-balloon="Generate a new device code. Warning: This will invalidate your current code and any pending shares." data-balloon-length="large" data-balloon-pos="left">
               <img src="./images/refresh.svg" alt="Regenerate code" width="12" />
             </div>
           </div>
@@ -146,49 +170,105 @@ Remember that the session might end at any time.' rows="10"></textarea>
             </svg>
           </div>
         </div>
+
         <div class="title">📱 QR Share to Mobile</div>
         <div class="explanation">Generate a QR code to instantly share your current session with mobile devices</div>
 
         <div class="qr-generation">
           <div class="current-session-info">
-            <div class="small">Current session</div>
+            <div class="small">📄 Current session</div>
             <div class="session-details">
-              <strong>{{=tab.title}}</strong><br>
-              <span class="session-url">{{=tab.url}}</span>
+              <div class="session-title">{{=tab.title}}</div>
+              <div class="session-url">{{=tab.url}}</div>
             </div>
           </div>
 
-          <button id="js-generate-qr-share" class="btn btn-primary m-t">
-            🔄 Generate QR Code
+          <button id="js-generate-qr-share" class="btn btn-primary">
+            <span class="btn-icon">🔄</span>
+            <span class="btn-text">Generate QR Code</span>
           </button>
 
+          <div id="js-qr-loading" class="qr-loading hidden">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Generating QR code...</div>
+          </div>
+
           <div id="js-qr-result" class="qr-result hidden">
-            <div class="small">Scan with mobile device:</div>
+            <div class="qr-header">
+              <div class="small">📱 Scan with your mobile device</div>
+              <div class="qr-status" id="js-qr-status">✅ QR Code ready!</div>
+            </div>
+
             <div class="qr-container">
-              <canvas id="js-qr-canvas-share"></canvas>
+              <canvas id="js-qr-canvas-share" width="200" height="200"></canvas>
+              <div class="qr-overlay" id="js-qr-overlay">
+                <div class="qr-overlay-content">
+                  <div class="qr-overlay-icon">📱</div>
+                  <div class="qr-overlay-text">QR Code will appear here</div>
+                </div>
+              </div>
             </div>
 
             <div class="qr-info">
-              <div class="small">📱 Mobile Instructions:</div>
-              <ol>
-                <li>Scan QR code with your phone</li>
-                <li>Tap the link that appears</li>
-                <li>You'll be automatically logged in!</li>
-              </ol>
+              <div class="small">📋 How to use:</div>
+              <div class="qr-steps">
+                <div class="qr-step">
+                  <span class="step-number">1</span>
+                  <span class="step-text">Open camera app on your phone</span>
+                </div>
+                <div class="qr-step">
+                  <span class="step-number">2</span>
+                  <span class="step-text">Point camera at QR code</span>
+                </div>
+                <div class="qr-step">
+                  <span class="step-number">3</span>
+                  <span class="step-text">Tap the notification to open link</span>
+                </div>
+                <div class="qr-step">
+                  <span class="step-number">4</span>
+                  <span class="step-text">You'll be automatically logged in!</span>
+                </div>
+              </div>
             </div>
 
             <div class="qr-actions">
               <button id="js-copy-qr-link" class="btn btn-secondary">
-                📋 Copy Link
+                <span class="btn-icon">📋</span>
+                <span class="btn-text">Copy Link</span>
               </button>
               <button id="js-regenerate-qr" class="btn">
-                🔄 Regenerate
+                <span class="btn-icon">🔄</span>
+                <span class="btn-text">Regenerate</span>
               </button>
+              <button id="js-download-qr" class="btn">
+                <span class="btn-icon">💾</span>
+                <span class="btn-text">Download</span>
+              </button>
+            </div>
+
+            <div class="qr-fallback" id="js-qr-fallback" style="display: none;">
+              <div class="fallback-header">
+                <div class="fallback-icon">⚠️</div>
+                <div class="fallback-title">QR Code generation failed</div>
+              </div>
+              <div class="fallback-content">
+                <div class="fallback-text">You can still share by copying the link below:</div>
+                <div class="fallback-url" id="js-fallback-url"></div>
+                <button id="js-copy-fallback-link" class="btn btn-primary">
+                  <span class="btn-icon">📋</span>
+                  <span class="btn-text">Copy Link</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="js-go-back go-back link">&lsaquo; back</div>
+        <div class="js-go-back go-back link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>back</span>
+        </div>
       </section>
 
       <div id="js-error" class="error hidden"></div>
@@ -247,7 +327,7 @@ Remember that the session might end at any time.' rows="10"></textarea>
     <script src="js/cryptography.js"></script>
     <script src="js/cookieManager.js"></script>
     <script src="js/shareText.js"></script>
-    <script src="js/qrShare.js"></script>
+
     <script src="js/qrShareDirect.js"></script>
 
     <!-- Main Application -->

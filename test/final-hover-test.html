@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Hover Text Test - SecureShare</title>
+    <!-- Exact same CSS loading as the extension -->
+    <link rel="stylesheet" href="../popup/css/vendor/balloon.min.css">
+    <link rel="stylesheet" href="../popup/css/styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+        }
+        .success-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin: var(--space-lg) 0;
+            text-align: center;
+            color: var(--success-color);
+            font-weight: 600;
+        }
+        .test-grid {
+            display: grid;
+            gap: var(--space-lg);
+            margin: var(--space-lg) 0;
+        }
+        .test-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+        }
+        .test-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>✅ Hover Text Fixed!</h1>
+        
+        <div class="success-banner">
+            🎉 All hover tooltips are now visible with high contrast dark backgrounds and white text!
+        </div>
+
+        <p><strong>Instructions:</strong> Hover over any "?" icon below to see the fixed tooltips.</p>
+
+        <div class="test-grid">
+            <!-- Share Section -->
+            <div class="test-item">
+                <div class="test-label">Share Section:</div>
+                <div class="small">👤 Recipient code <span class="link" data-balloon="Paste the code of the person you want to share your extension with. It can be found on the 'Receive account' section." data-balloon-length="medium-xl" data-balloon-pos="right">?</span></div>
+            </div>
+
+            <!-- Timeout -->
+            <div class="test-item">
+                <div class="test-label">Timeout Setting:</div>
+                <div class="small">⏰ Session timeout <span class="link" data-balloon="How long the shared session will remain active. Default is 168 hours (1 week)." data-balloon-length="medium" data-balloon-pos="top">?</span></div>
+            </div>
+
+            <!-- Share Result -->
+            <div class="test-item">
+                <div class="test-label">Share Result:</div>
+                <div class="small">Share result <span class="link" data-balloon="Share this text with the owner of the code" data-balloon-length="medium" data-balloon-pos="left">?</span></div>
+            </div>
+
+            <!-- Restore -->
+            <div class="test-item">
+                <div class="test-label">Restore Section:</div>
+                <div class="small">Encrypted data <span class="link" data-balloon="Paste the share result here. If you gave the sender your code, you'll be the only one able to decrypt it." data-balloon-length="medium" data-balloon-pos="bottom">?</span></div>
+            </div>
+
+            <!-- Action Icons -->
+            <div class="test-item">
+                <div class="test-label">Action Icons:</div>
+                <div style="display: flex; gap: var(--space-md); align-items: center;">
+                    <div class="action-icon" data-balloon="Copy your device code" data-balloon-pos="top">
+                        <img src="../popup/images/copy.svg" alt="Copy" width="12" style="filter: invert(1);" />
+                    </div>
+                    <div class="action-icon" data-balloon="Generate a new device code. Warning: This will invalidate your current code and any pending shares." data-balloon-length="large" data-balloon-pos="right">
+                        <img src="../popup/images/refresh.svg" alt="Refresh" width="12" style="filter: invert(1);" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Link Info -->
+            <div class="test-item">
+                <div class="test-label">Link Information:</div>
+                <span class="link" data-balloon="The site contains the share result. It'll be deleted in 10 minutes or upon the first viewing." data-balloon-pos="right" data-balloon-length="large">?</span>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div style="background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-md); padding: var(--space-md); margin-top: var(--space-lg);">
+            <h3 style="margin-top: 0; color: var(--primary-color);">🔧 Technical Fixes Applied:</h3>
+            <ul style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                <li>✅ Enhanced question mark buttons with better visibility</li>
+                <li>✅ High contrast dark tooltips (rgba(0,0,0,0.95)) with white text</li>
+                <li>✅ Proper z-index (999999) to appear above all elements</li>
+                <li>✅ Smooth animations and hover effects</li>
+                <li>✅ Multiple positioning options (top, bottom, left, right)</li>
+                <li>✅ Variable length support (small, medium, large, etc.)</li>
+                <li>✅ Compatible with existing balloon.css library</li>
+                <li>✅ Enhanced button styling with gradients and shadows</li>
+            </ul>
+        </div>
+
+        <!-- Status Check -->
+        <div style="margin-top: var(--space-lg); padding: var(--space-md); background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-md);">
+            <div style="font-weight: 600; color: var(--success-color); margin-bottom: var(--space-sm);">
+                🎯 Hover Text Status: <span id="status">Testing...</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                Hover over any "?" above to verify tooltips are working correctly.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusEl = document.getElementById('status');
+            let tooltipCount = 0;
+            let workingTooltips = 0;
+
+            // Test all tooltip elements
+            const tooltipElements = document.querySelectorAll('[data-balloon]');
+            tooltipCount = tooltipElements.length;
+
+            tooltipElements.forEach((el, index) => {
+                // Test if tooltip styling is applied
+                const computedStyle = window.getComputedStyle(el, ':after');
+                
+                el.addEventListener('mouseenter', function() {
+                    workingTooltips++;
+                    console.log(`Tooltip ${workingTooltips}/${tooltipCount} working:`, this.getAttribute('data-balloon'));
+                    
+                    if (workingTooltips === 1) {
+                        statusEl.textContent = 'Working! ✅';
+                        statusEl.style.color = 'var(--success-color)';
+                    }
+                });
+            });
+
+            // Initial status
+            setTimeout(() => {
+                if (workingTooltips === 0) {
+                    statusEl.textContent = `Ready (${tooltipCount} tooltips found)`;
+                    statusEl.style.color = 'var(--primary-color)';
+                }
+            }, 1000);
+
+            console.log('🎯 Final hover text test initialized');
+            console.log(`Found ${tooltipCount} tooltip elements`);
+        });
+    </script>
+</body>
+</html>

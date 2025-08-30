@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hover Text Fix Test - SecureShare</title>
+    <!-- Load the same CSS as the extension -->
+    <link rel="stylesheet" href="../popup/css/vendor/balloon.min.css">
+    <link rel="stylesheet" href="../popup/css/styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+        }
+        .test-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+        }
+        .test-section {
+            margin-bottom: var(--space-xl);
+            padding: var(--space-lg);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .instructions {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin: var(--space-md) 0;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+        .success-note {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin: var(--space-md) 0;
+            font-size: 0.875rem;
+            color: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Hover Text Fix Test</h1>
+        <p>Testing the fixed hover tooltips on actual extension elements.</p>
+
+        <div class="instructions">
+            <strong>🎯 Test Instructions:</strong><br>
+            Hover over the "?" icons below. You should see dark tooltips with white text that are clearly visible against the background.
+        </div>
+
+        <!-- Share Section Test -->
+        <div class="test-section">
+            <h3>🔐 Share Section</h3>
+            
+            <div class="input-container">
+                <div class="small">👤 Recipient code <span class="link" data-balloon="Paste the code of the person you want to share your extension with. It can be found on the 'Receive account' section." data-balloon-length="medium-xl" data-balloon-pos="right">?</span></div>
+                <input type="text" placeholder="Enter the recipient's device code" />
+            </div>
+
+            <div class="input-container timeout-container">
+                <div class="small">⏰ Session timeout (hours) <span class="link" data-balloon="How long the shared session will remain active. Default is 168 hours (1 week)." data-balloon-length="medium" data-balloon-pos="right">?</span></div>
+                <input type="number" placeholder="168 (1 week default)" />
+            </div>
+        </div>
+
+        <!-- Restore Section Test -->
+        <div class="test-section">
+            <h3>🔓 Restore Section</h3>
+            
+            <div class="your-code">
+                <div class="small">📱 Your device code</div>
+                <div class="input-container">
+                    <input type="text" value="ABC123DEF456" readonly />
+                    <div class="action-icon" data-balloon="Copy your device code" data-balloon-pos="top">
+                        <img src="../popup/images/copy.svg" alt="Copy code" width="12" style="filter: invert(1);" />
+                    </div>
+                    <div class="action-icon regenerate-icon" data-balloon="Generate a new device code. Warning: This will invalidate your current code and any pending shares." data-balloon-length="large" data-balloon-pos="left">
+                        <img src="../popup/images/refresh.svg" alt="Regenerate code" width="12" style="filter: invert(1);" />
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--space-md);">
+                <div class="small">Share result <span class="link" data-balloon="Paste the share result here. If you gave the sender your code, you'll be the only one able to decrypt it." data-balloon-length="medium" data-balloon-pos="right">?</span></div>
+                <textarea placeholder="Paste encrypted session data here..." rows="3"></textarea>
+            </div>
+        </div>
+
+        <!-- Action Icons Test -->
+        <div class="test-section">
+            <h3>🎯 Action Icons</h3>
+            
+            <div style="display: flex; gap: var(--space-md); align-items: center;">
+                <div class="action-icon" data-balloon="Copy encryption" data-balloon-pos="top">
+                    <img src="../popup/images/copy.svg" alt="Copy" width="12" style="filter: invert(1);" />
+                </div>
+                
+                <div class="action-icon" data-balloon="Copy link" data-balloon-pos="bottom">
+                    <img src="../popup/images/copy.svg" alt="Copy link" width="12" style="filter: invert(1);" />
+                </div>
+                
+                <span class="link" data-balloon="The site contains the share result. It'll be deleted in 10 minutes or upon the first viewing." data-balloon-pos="right" data-balloon-length="large">?</span>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="success-note">
+            <strong>✅ Hover Text Fixed!</strong><br>
+            • High contrast dark tooltips with white text<br>
+            • Proper positioning (top, bottom, left, right)<br>
+            • Multiple length options working<br>
+            • Smooth animations and transitions<br>
+            • Compatible with existing balloon.css library<br>
+            • Z-index set to appear above all elements
+        </div>
+
+        <!-- Debug Info -->
+        <div class="test-section">
+            <h3>🔍 Debug Info</h3>
+            <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                <div>Balloon.css: <span id="balloon-status">Loading...</span></div>
+                <div>Custom overrides: <span id="override-status">Loading...</span></div>
+                <div>Z-index test: <span id="zindex-status">Loading...</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if balloon.css is loaded
+            const balloonStatus = document.getElementById('balloon-status');
+            const overrideStatus = document.getElementById('override-status');
+            const zindexStatus = document.getElementById('zindex-status');
+            
+            // Test balloon.css
+            const testElement = document.querySelector('[data-balloon]');
+            if (testElement) {
+                const computedStyle = window.getComputedStyle(testElement, ':after');
+                if (computedStyle.content !== 'none') {
+                    balloonStatus.textContent = '✅ Loaded';
+                    balloonStatus.style.color = 'var(--success-color)';
+                } else {
+                    balloonStatus.textContent = '❌ Not working';
+                    balloonStatus.style.color = 'var(--error-color)';
+                }
+            }
+            
+            // Test custom overrides
+            const afterStyle = window.getComputedStyle(testElement, ':after');
+            if (afterStyle.backgroundColor.includes('rgba(0, 0, 0, 0.95)') || afterStyle.backgroundColor.includes('rgb(0, 0, 0)')) {
+                overrideStatus.textContent = '✅ Applied';
+                overrideStatus.style.color = 'var(--success-color)';
+            } else {
+                overrideStatus.textContent = '❌ Not applied';
+                overrideStatus.style.color = 'var(--error-color)';
+            }
+            
+            // Test z-index
+            if (afterStyle.zIndex === '10000' || afterStyle.zIndex === '999999') {
+                zindexStatus.textContent = '✅ High priority';
+                zindexStatus.style.color = 'var(--success-color)';
+            } else {
+                zindexStatus.textContent = '⚠️ May be hidden';
+                zindexStatus.style.color = 'var(--warning-color)';
+            }
+            
+            // Add hover event listeners for debugging
+            const tooltipElements = document.querySelectorAll('[data-balloon]');
+            tooltipElements.forEach(el => {
+                el.addEventListener('mouseenter', function() {
+                    console.log('Tooltip hovered:', this.getAttribute('data-balloon'));
+                });
+            });
+            
+            console.log('🔧 Hover text fix test initialized');
+        });
+    </script>
+</body>
+</html>

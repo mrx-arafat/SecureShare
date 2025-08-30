@@ -204,10 +204,16 @@
                   // Generate QR code
                   if (window.qrShareDirect) {
                     console.log('About to generate QR code with sessionData:', sessionData);
+
+                    // Show loading state
+                    show('js-qr-loading')
+                    hide('js-qr-result')
+
                     const loginUrl = await window.qrShareDirect.generateDirectLoginQR(sessionData, 'js-qr-canvas-share')
                     console.log('Generated login URL:', loginUrl);
 
-                    // Show QR result
+                    // Hide loading and show QR result
+                    hide('js-qr-loading')
                     show('js-qr-result')
 
                     // Store URL for copy functionality
@@ -221,7 +227,16 @@
 
                 } catch (error) {
                   log('QR generation error:', error)
-                  showError('Failed to generate QR code: ' + error.message)
+                  hide('js-qr-loading')
+
+                  // Show user-friendly error messages
+                  if (error.message.includes('Cannot share browser internal pages')) {
+                    showError('Cannot generate QR for this page. Please navigate to a website (like google.com) and try again.')
+                  } else if (error.message.includes('QR Share module not loaded')) {
+                    showError('QR generation module failed to load. Please refresh the extension.')
+                  } else {
+                    showError('Failed to generate QR code: ' + error.message)
+                  }
                 } finally {
                   // Restore button
                   button.textContent = originalText
@@ -249,10 +264,10 @@
             const success = await window.qrShareDirect.copyToClipboard(window.currentQRUrl)
             if (success) {
               const button = event.currentTarget
-              const originalText = button.textContent
-              button.textContent = '✅ Copied!'
+              const originalText = button.innerHTML
+              button.innerHTML = '<span class="btn-icon">✅</span><span class="btn-text">Copied!</span>'
               setTimeout(() => {
-                button.textContent = originalText
+                button.innerHTML = originalText
               }, 2000)
             } else {
               showError('Failed to copy link to clipboard')
@@ -271,6 +286,59 @@
         // Hide current QR result and trigger regeneration
         hide('js-qr-result')
         getElementById('js-generate-qr-share').click()
+      })
+
+      // Download QR button
+      addEventListener('#js-download-qr', 'click', function(event) {
+        try {
+          const canvas = document.getElementById('js-qr-canvas-share')
+          if (canvas) {
+            // Create download link
+            const link = document.createElement('a')
+            link.download = 'secureshare-qr-code.png'
+            link.href = canvas.toDataURL()
+            link.click()
+          } else {
+            showError('No QR code available to download')
+          }
+        } catch (error) {
+          log('Download QR error:', error)
+          showError('Failed to download QR code: ' + error.message)
+        }
+      })
+
+      // Copy fallback link button
+      addEventListener('#js-copy-fallback-link', 'click', async function(event) {
+        try {
+          const fallbackUrlEl = document.getElementById('js-fallback-url')
+          let urlToCopy = null
+
+          // Try to get URL from fallback element first, then from window.currentQRUrl
+          if (fallbackUrlEl && fallbackUrlEl.textContent && fallbackUrlEl.textContent.trim()) {
+            urlToCopy = fallbackUrlEl.textContent.trim()
+          } else if (window.currentQRUrl) {
+            urlToCopy = window.currentQRUrl
+          }
+
+          if (urlToCopy && window.qrShareDirect) {
+            const success = await window.qrShareDirect.copyToClipboard(urlToCopy)
+            if (success) {
+              const button = event.currentTarget
+              const originalText = button.innerHTML
+              button.innerHTML = '<span class="btn-icon">✅</span><span class="btn-text">Copied!</span>'
+              setTimeout(() => {
+                button.innerHTML = originalText
+              }, 2000)
+            } else {
+              showError('Failed to copy link to clipboard')
+            }
+          } else {
+            showError('No link available to copy')
+          }
+        } catch (error) {
+          log('Copy fallback link error:', error)
+          showError('Failed to copy link: ' + error.message)
+        }
       })
     },
 

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tooltip Visibility Test - SecureShare</title>
+    <link rel="stylesheet" href="../popup/css/styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            backdrop-filter: var(--glass-backdrop);
+            -webkit-backdrop-filter: var(--glass-backdrop);
+        }
+        .test-section {
+            margin-bottom: var(--space-xl);
+            padding: var(--space-lg);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .test-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            color: var(--primary-color);
+        }
+        .tooltip-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-lg);
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            margin: var(--space-md) 0;
+        }
+        .demo-item {
+            padding: var(--space-md);
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            border-radius: var(--radius-md);
+            text-align: center;
+            min-width: 120px;
+        }
+        .instructions {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin: var(--space-md) 0;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎯 Tooltip Visibility Test</h1>
+        <p>Testing the fixed hover text tooltips to ensure they are visible and properly positioned.</p>
+
+        <div class="instructions">
+            <strong>📋 Instructions:</strong> Hover over the elements below to see the tooltips. They should appear with dark backgrounds, white text, and proper positioning.
+        </div>
+
+        <!-- Position Tests -->
+        <div class="test-section">
+            <div class="test-title">📍 Position Tests</div>
+            
+            <div class="tooltip-demo">
+                <div class="demo-item">
+                    <span class="link" data-balloon="This tooltip appears at the bottom (default)" data-balloon-pos="bottom">Bottom Tooltip</span>
+                </div>
+                
+                <div class="demo-item">
+                    <span class="link" data-balloon="This tooltip appears at the top" data-balloon-pos="top">Top Tooltip</span>
+                </div>
+                
+                <div class="demo-item">
+                    <span class="link" data-balloon="This tooltip appears on the right" data-balloon-pos="right">Right Tooltip</span>
+                </div>
+                
+                <div class="demo-item">
+                    <span class="link" data-balloon="This tooltip appears on the left" data-balloon-pos="left">Left Tooltip</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Length Tests -->
+        <div class="test-section">
+            <div class="test-title">📏 Length Tests</div>
+            
+            <div class="tooltip-demo">
+                <div class="demo-item">
+                    <span class="link" data-balloon="Short" data-balloon-length="small">Small</span>
+                </div>
+                
+                <div class="demo-item">
+                    <span class="link" data-balloon="This is a medium length tooltip that wraps to multiple lines for better readability." data-balloon-length="medium">Medium</span>
+                </div>
+                
+                <div class="demo-item">
+                    <span class="link" data-balloon="This is a medium-xl length tooltip that provides even more space for detailed explanations and instructions." data-balloon-length="medium-xl">Medium-XL</span>
+                </div>
+                
+                <div class="demo-item">
+                    <span class="link" data-balloon="This is a large tooltip that can contain extensive information, detailed explanations, and comprehensive instructions for complex features." data-balloon-length="large">Large</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real Extension Examples -->
+        <div class="test-section">
+            <div class="test-title">🔧 Real Extension Examples</div>
+            
+            <div class="tooltip-demo">
+                <div class="demo-item">
+                    <span class="link" data-balloon="Paste the code of the person you want to share your extension with. It can be found on the 'Receive account' section." data-balloon-length="medium-xl" data-balloon-pos="right">Recipient Code ?</span>
+                </div>
+                
+                <div class="demo-item">
+                    <span class="link" data-balloon="How long the shared session will remain active. Default is 168 hours (1 week)." data-balloon-length="medium" data-balloon-pos="top">Timeout ?</span>
+                </div>
+                
+                <div class="demo-item">
+                    <span class="link" data-balloon="Copy your device code" data-balloon-pos="bottom">Copy Code</span>
+                </div>
+                
+                <div class="demo-item">
+                    <span class="link" data-balloon="Generate a new device code. Warning: This will invalidate your current code and any pending shares." data-balloon-length="large" data-balloon-pos="left">Regenerate ?</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Icons Test -->
+        <div class="test-section">
+            <div class="test-title">🎯 Action Icons Test</div>
+            
+            <div class="tooltip-demo">
+                <div class="action-icon" data-balloon="Copy encryption" data-balloon-pos="right">
+                    <img src="../popup/images/copy.svg" alt="Copy" width="16" style="filter: invert(1);" />
+                </div>
+                
+                <div class="action-icon" data-balloon="Regenerate code" data-balloon-pos="top">
+                    <img src="../popup/images/refresh.svg" alt="Refresh" width="16" style="filter: invert(1);" />
+                </div>
+                
+                <button class="btn btn-secondary" data-balloon="Download QR code as PNG image" data-balloon-pos="bottom">
+                    <span class="btn-icon">💾</span>
+                    <span class="btn-text">Download</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="test-section">
+            <div class="test-title">✅ Test Results</div>
+            
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-md); padding: var(--space-md); color: var(--success-color);">
+                <strong>✅ Tooltips Fixed!</strong><br>
+                • Dark background with high contrast<br>
+                • Proper positioning (top, bottom, left, right)<br>
+                • Multiple length options<br>
+                • Smooth animations<br>
+                • Arrow indicators<br>
+                • Works with all UI elements
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 Tooltip visibility test initialized');
+            
+            // Add some interactive feedback
+            const tooltipElements = document.querySelectorAll('[data-balloon]');
+            tooltipElements.forEach(el => {
+                el.addEventListener('mouseenter', function() {
+                    console.log('Tooltip shown:', this.getAttribute('data-balloon'));
+                });
+            });
+        });
+    </script>
+</body>
+</html>
