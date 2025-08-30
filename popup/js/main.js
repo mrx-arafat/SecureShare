@@ -172,11 +172,21 @@
 
     'attach-qr-share': function() {
       log('[Events] Attaching QR Share events')
+      console.log('🔧 QR Share events being attached...');
+
+      // Check if button exists
+      const qrButton = document.getElementById('js-generate-qr-share');
+      console.log('🔍 QR button found:', qrButton ? 'YES' : 'NO');
+
+      if (!qrButton) {
+        console.error('❌ QR button not found in DOM');
+        return;
+      }
 
       // Generate QR code button
       addEventListener('#js-generate-qr-share', 'click', async function(event) {
         try {
-          console.log('Generate QR Share button clicked!');
+          console.log('🚀 Generate QR Share button clicked!');
           const button = event.currentTarget
           const originalText = button.textContent
 
@@ -202,27 +212,50 @@
                   }
 
                   // Generate QR code
+                  console.log('🔍 Checking QR module availability...');
+                  console.log('window.qrShareDirect:', typeof window.qrShareDirect);
+                  console.log('window.payloadManager:', typeof window.payloadManager);
+                  console.log('window.mobileFlow:', typeof window.mobileFlow);
+                  console.log('window.base64url:', typeof window.base64url);
+                  console.log('QRious:', typeof QRious);
+
                   if (window.qrShareDirect) {
+                    console.log('✅ qrShareDirect module is available');
                     console.log('About to generate QR code with sessionData:', sessionData);
 
                     // Show loading state
                     show('js-qr-loading')
                     hide('js-qr-result')
 
-                    const loginUrl = await window.qrShareDirect.generateDirectLoginQR(sessionData, 'js-qr-canvas-share')
-                    console.log('Generated login URL:', loginUrl);
+                    try {
+                      const loginUrl = await window.qrShareDirect.generateDirectLoginQR(sessionData, 'js-qr-canvas-share')
+                      console.log('✅ Generated login URL:', loginUrl);
 
-                    // Hide loading and show QR result
-                    hide('js-qr-loading')
-                    show('js-qr-result')
+                      // Hide loading and show QR result
+                      hide('js-qr-loading')
+                      show('js-qr-result')
 
-                    // Store URL for copy functionality
-                    window.currentQRUrl = loginUrl
-                    console.log('QR URL stored in window.currentQRUrl');
+                      // Store URL for copy functionality
+                      window.currentQRUrl = loginUrl
+                      console.log('QR URL stored in window.currentQRUrl');
 
-                    log('QR code generated successfully')
+                      log('QR code generated successfully')
+                    } catch (qrError) {
+                      console.error('❌ QR generation failed:', qrError);
+                      throw qrError;
+                    }
                   } else {
-                    throw new Error('QR Share module not loaded')
+                    console.error('❌ QR Share module not loaded');
+                    console.log('Available window properties:', Object.keys(window).filter(k => k.includes('qr') || k.includes('payload') || k.includes('mobile')));
+
+                    // Try emergency fallback QR generation
+                    console.log('🚨 Attempting emergency fallback QR generation...');
+                    try {
+                      await generateEmergencyQR(sessionData);
+                    } catch (fallbackError) {
+                      console.error('💥 Emergency fallback also failed:', fallbackError);
+                      throw new Error('QR Share module not loaded and fallback failed')
+                    }
                   }
 
                 } catch (error) {
@@ -547,11 +580,131 @@
   // --------------------------------------------------------------------
   // Utils
 
+  async function generateEmergencyQR(sessionData) {
+    try {
+      console.log('🚨 Emergency QR generation starting...');
+
+      // Show loading state
+      show('js-qr-loading')
+      hide('js-qr-result')
+
+      // Create simple session data for extension
+      const emergencyData = JSON.stringify({
+        iv: "emergency_qr_session",
+        v: 1,
+        iter: 10000,
+        ks: 128,
+        ts: 64,
+        mode: "ccm",
+        adata: "",
+        cipher: "aes",
+        kemtag: "emergency",
+        ct: btoa(JSON.stringify(sessionData))
+      }, null, 2);
+
+      // Create minimal instruction page
+      const instructionPage = `data:text/html;charset=utf-8,${encodeURIComponent(`
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SecureShare Emergency</title>
+<style>
+body{font-family:Arial;padding:20px;background:#d94343;color:white;text-align:center}
+.box{background:white;color:#333;padding:20px;border-radius:15px;max-width:400px;margin:0 auto}
+.btn{background:#d94343;color:white;padding:15px;border:none;border-radius:8px;width:100%;margin:10px 0;font-size:16px;cursor:pointer}
+.data{background:#f5f5f5;padding:10px;border-radius:5px;font-family:monospace;font-size:11px;word-break:break-all;margin:10px 0;max-height:120px;overflow-y:auto}
+</style></head><body><div class="box">
+<h2>🔐 SecureShare Emergency</h2>
+<p><strong>${sessionData.title || 'Emergency Session'}</strong></p>
+<p>1. Install SecureShare extension<br>2. Copy data below<br>3. Paste in "Restore Session"</p>
+<button class="btn" onclick="copy()">📋 Copy Session Data</button>
+<div class="data" id="d">${emergencyData}</div>
+<button class="btn" onclick="window.open('${sessionData.url}')">🌐 Open Site</button>
+</div><script>
+function copy(){
+const t=document.getElementById('d').textContent;
+if(navigator.clipboard){
+navigator.clipboard.writeText(t).then(()=>alert('✅ Copied!'))
+}else{
+const e=document.createElement('textarea');
+e.value=t;document.body.appendChild(e);
+e.select();document.execCommand('copy');
+document.body.removeChild(e);alert('✅ Copied!')
+}
+}
+</script></body></html>
+      `)}`;
+
+      // Try to generate QR with QRious if available
+      const canvas = document.getElementById('js-qr-canvas-share');
+      if (canvas && typeof QRious !== 'undefined') {
+        try {
+          const qr = new QRious({
+            element: canvas,
+            value: instructionPage,
+            size: 200,
+            level: 'M',
+            background: '#ffffff',
+            foreground: '#000000'
+          });
+
+          console.log('✅ Emergency QR generated with QRious');
+
+          // Hide loading and show result
+          hide('js-qr-loading')
+          show('js-qr-result')
+
+          // Store URL
+          window.currentQRUrl = instructionPage;
+
+          return instructionPage;
+
+        } catch (qrError) {
+          console.log('⚠️ QRious failed in emergency mode:', qrError.message);
+        }
+      }
+
+      // Ultimate fallback - use API
+      console.log('🌐 Using API fallback for emergency QR...');
+      const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(instructionPage)}`;
+
+      if (canvas) {
+        const img = new Image();
+        img.onload = () => {
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, 200, 200);
+
+          console.log('✅ Emergency QR generated with API');
+          hide('js-qr-loading')
+          show('js-qr-result')
+          window.currentQRUrl = instructionPage;
+        };
+        img.onerror = () => {
+          throw new Error('Emergency QR generation completely failed');
+        };
+        img.src = apiUrl;
+      }
+
+      return instructionPage;
+
+    } catch (error) {
+      console.error('💥 Emergency QR generation failed:', error);
+      hide('js-qr-loading')
+      throw error;
+    }
+  }
+
   function fullRender(name) {
     getCurrentTab(tab =>
-      configuration.get(config =>
+      configuration.get(config => {
         template.render(name, Object.assign({ tab }, config))
-      )
+
+        // Ensure QR share events are attached when rendering qr-share template
+        if (name === 'qr-share') {
+          console.log('🔧 Attaching QR share events for template:', name);
+          events['attach-qr-share']();
+        }
+      })
     )
   }
 

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Extension QR Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .title {
+            color: #d94343;
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        .extension-frame {
+            flex: 1;
+            border: 2px solid #d94343;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .extension-frame iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+        .controls {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .btn {
+            background: #d94343;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .btn:hover { background: #c13333; }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .log {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #2196f3;
+        }
+        .instructions h3 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">🔧 Extension QR Test</div>
+        
+        <div class="instructions">
+            <h3>📋 How to Test QR Generation</h3>
+            <ol>
+                <li><strong>Load Extension:</strong> The extension popup is loaded in the iframe</li>
+                <li><strong>Navigate to QR Share:</strong> Click "QR Share to Mobile" in the extension</li>
+                <li><strong>Generate QR:</strong> Click "Generate QR Code" button</li>
+                <li><strong>Check Result:</strong> QR code should appear in the extension</li>
+                <li><strong>Debug:</strong> Use the controls on the right to troubleshoot</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <div class="extension-frame">
+                <h3 style="text-align: center; margin: 10px 0;">🔐 SecureShare Extension</h3>
+                <iframe id="extension-iframe" src="popup/index.html"></iframe>
+            </div>
+
+            <div class="controls">
+                <h3>🔧 Test Controls</h3>
+                
+                <div id="status" class="status info">
+                    🔄 Extension loading...
+                </div>
+
+                <button class="btn" onclick="checkModules()">🔍 Check Modules</button>
+                <button class="btn" onclick="testQRGeneration()">🎨 Test QR Generation</button>
+                <button class="btn" onclick="navigateToQRShare()">📱 Navigate to QR Share</button>
+                <button class="btn" onclick="injectDebugCode()">🐛 Inject Debug Code</button>
+                <button class="btn" onclick="refreshExtension()">🔄 Refresh Extension</button>
+
+                <div class="log" id="test-log">🔧 Test log will appear here...</div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>🚨 Troubleshooting</h3>
+            <ul>
+                <li><strong>QR Not Appearing:</strong> Check if modules are loaded (click "Check Modules")</li>
+                <li><strong>Button Not Working:</strong> Try "Inject Debug Code" to add logging</li>
+                <li><strong>Extension Issues:</strong> Click "Refresh Extension" to reload</li>
+                <li><strong>Module Errors:</strong> Check browser console for detailed errors</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let testLog = '';
+
+        function log(message) {
+            testLog += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            document.getElementById('test-log').textContent = testLog;
+            console.log('EXT-QR-TEST:', message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status ${type}`;
+            statusEl.innerHTML = message;
+        }
+
+        function getExtensionWindow() {
+            try {
+                const iframe = document.getElementById('extension-iframe');
+                return iframe.contentWindow;
+            } catch (error) {
+                log('❌ Cannot access extension window: ' + error.message);
+                return null;
+            }
+        }
+
+        function checkModules() {
+            try {
+                log('🔍 Checking extension modules...');
+                const extWindow = getExtensionWindow();
+                
+                if (!extWindow) {
+                    throw new Error('Cannot access extension window');
+                }
+
+                const modules = {
+                    'QRious': typeof extWindow.QRious !== 'undefined',
+                    'qrShareDirect': typeof extWindow.qrShareDirect !== 'undefined',
+                    'payloadManager': typeof extWindow.payloadManager !== 'undefined',
+                    'mobileFlow': typeof extWindow.mobileFlow !== 'undefined',
+                    'base64url': typeof extWindow.base64url !== 'undefined'
+                };
+
+                const loadedCount = Object.values(modules).filter(Boolean).length;
+                const totalCount = Object.keys(modules).length;
+
+                log(`📦 Module status: ${loadedCount}/${totalCount} loaded`);
+                Object.entries(modules).forEach(([name, loaded]) => {
+                    log(`  ${loaded ? '✅' : '❌'} ${name}`);
+                });
+
+                if (loadedCount === totalCount) {
+                    updateStatus(`✅ All modules loaded (${loadedCount}/${totalCount})`, 'success');
+                } else {
+                    updateStatus(`⚠️ Missing modules: ${totalCount - loadedCount}`, 'error');
+                }
+
+            } catch (error) {
+                log('❌ Module check failed: ' + error.message);
+                updateStatus('❌ Module check failed', 'error');
+            }
+        }
+
+        function navigateToQRShare() {
+            try {
+                log('📱 Navigating to QR Share...');
+                const extWindow = getExtensionWindow();
+                
+                if (!extWindow) {
+                    throw new Error('Cannot access extension window');
+                }
+
+                // Try to click the QR Share button
+                const qrShareButton = extWindow.document.querySelector('[data-menu="qr-share"]');
+                if (qrShareButton) {
+                    qrShareButton.click();
+                    log('✅ Clicked QR Share button');
+                    updateStatus('✅ Navigated to QR Share', 'success');
+                } else {
+                    log('❌ QR Share button not found');
+                    updateStatus('❌ QR Share button not found', 'error');
+                }
+
+            } catch (error) {
+                log('❌ Navigation failed: ' + error.message);
+                updateStatus('❌ Navigation failed', 'error');
+            }
+        }
+
+        function testQRGeneration() {
+            try {
+                log('🎨 Testing QR generation...');
+                const extWindow = getExtensionWindow();
+                
+                if (!extWindow) {
+                    throw new Error('Cannot access extension window');
+                }
+
+                // Try to click the Generate QR button
+                const generateButton = extWindow.document.getElementById('js-generate-qr-share');
+                if (generateButton) {
+                    generateButton.click();
+                    log('✅ Clicked Generate QR button');
+                    updateStatus('✅ QR generation triggered', 'success');
+                } else {
+                    log('❌ Generate QR button not found - navigate to QR Share first');
+                    updateStatus('❌ Generate QR button not found', 'error');
+                }
+
+            } catch (error) {
+                log('❌ QR generation test failed: ' + error.message);
+                updateStatus('❌ QR generation test failed', 'error');
+            }
+        }
+
+        function injectDebugCode() {
+            try {
+                log('🐛 Injecting debug code...');
+                const extWindow = getExtensionWindow();
+                
+                if (!extWindow) {
+                    throw new Error('Cannot access extension window');
+                }
+
+                // Inject debug logging
+                extWindow.eval(`
+                    console.log('🐛 Debug code injected');
+                    
+                    // Override console.log to capture extension logs
+                    const originalLog = console.log;
+                    console.log = function(...args) {
+                        originalLog.apply(console, args);
+                        try {
+                            parent.postMessage({
+                                type: 'extension-log',
+                                message: args.join(' ')
+                            }, '*');
+                        } catch (e) {}
+                    };
+                    
+                    // Check module status
+                    console.log('🔍 Module status check:');
+                    console.log('QRious:', typeof QRious);
+                    console.log('qrShareDirect:', typeof window.qrShareDirect);
+                    console.log('payloadManager:', typeof window.payloadManager);
+                    console.log('mobileFlow:', typeof window.mobileFlow);
+                    console.log('base64url:', typeof window.base64url);
+                `);
+
+                log('✅ Debug code injected successfully');
+                updateStatus('✅ Debug code injected', 'success');
+
+            } catch (error) {
+                log('❌ Debug injection failed: ' + error.message);
+                updateStatus('❌ Debug injection failed', 'error');
+            }
+        }
+
+        function refreshExtension() {
+            try {
+                log('🔄 Refreshing extension...');
+                const iframe = document.getElementById('extension-iframe');
+                iframe.src = iframe.src;
+                updateStatus('🔄 Extension refreshed', 'info');
+                
+                // Re-check modules after refresh
+                setTimeout(() => {
+                    checkModules();
+                }, 2000);
+
+            } catch (error) {
+                log('❌ Refresh failed: ' + error.message);
+                updateStatus('❌ Refresh failed', 'error');
+            }
+        }
+
+        // Listen for messages from extension
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'extension-log') {
+                log('📱 Extension: ' + event.data.message);
+            }
+        });
+
+        // Auto-check modules when extension loads
+        window.addEventListener('load', function() {
+            log('🔧 Extension QR test page loaded');
+            updateStatus('✅ Test page loaded', 'success');
+            
+            // Check modules after extension loads
+            setTimeout(() => {
+                checkModules();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

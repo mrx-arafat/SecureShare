@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Extension QR Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .title {
+            color: #d94343;
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: #d94343;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #c13333;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #d94343;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 15px 0;
+            border: 1px solid #dee2e6;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">🔧 Extension QR Test</div>
+        
+        <div id="status" class="status info">
+            🔄 Ready to test SecureShare extension QR functionality
+        </div>
+
+        <button class="btn" onclick="loadExtension()">🚀 Load Extension Popup</button>
+        <button class="btn" onclick="testDirectQR()">📱 Test QR Generation Directly</button>
+        <button class="btn" onclick="openFinalTest()">🧪 Open Final Test Page</button>
+
+        <div id="direct-qr-section" style="display: none; text-align: center; margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <h3>Direct QR Test</h3>
+            <canvas id="direct-qr-canvas" width="300" height="300" style="border: 2px solid #d94343; border-radius: 10px;"></canvas>
+            <div id="qr-info" style="margin-top: 15px; font-size: 14px; color: #666;"></div>
+            <button class="btn" onclick="testQRContent()" style="width: auto; margin-top: 10px;">📱 Test QR Content</button>
+        </div>
+
+        <iframe id="extension-frame" src="about:blank" style="display: none;"></iframe>
+
+        <div class="log" id="test-log">Test log will appear here...</div>
+    </div>
+
+    <!-- Load required modules for direct testing -->
+    <script src="popup/js/vendor/qrious.min.js"></script>
+    <script src="popup/js/vendor/sjcl.min.js"></script>
+    <script src="popup/js/vendor/rawdeflate.min.js"></script>
+    <script src="popup/js/log.js"></script>
+    <script src="popup/js/base64url.js"></script>
+    <script src="popup/js/payloadManager.js"></script>
+    <script src="popup/js/mobileFlow.js"></script>
+    <script src="popup/js/qrShareDirect.js"></script>
+
+    <script>
+        let testLog = '';
+
+        function log(message) {
+            testLog += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            document.getElementById('test-log').textContent = testLog;
+            console.log('EXT-TEST:', message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status ${type}`;
+            statusEl.innerHTML = message;
+        }
+
+        function loadExtension() {
+            try {
+                log('🚀 Loading SecureShare extension popup...');
+                const iframe = document.getElementById('extension-frame');
+                iframe.src = 'popup/index.html';
+                iframe.style.display = 'block';
+                
+                iframe.onload = function() {
+                    log('✅ Extension popup loaded successfully');
+                    updateStatus('✅ Extension popup loaded! You can now test QR generation.', 'success');
+                };
+                
+                iframe.onerror = function() {
+                    log('❌ Failed to load extension popup');
+                    updateStatus('❌ Failed to load extension popup. Check file paths.', 'error');
+                };
+                
+            } catch (error) {
+                log('❌ Error loading extension: ' + error.message);
+                updateStatus('❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        async function testDirectQR() {
+            try {
+                log('📱 Testing QR generation directly...');
+
+                // Show QR section
+                document.getElementById('direct-qr-section').style.display = 'block';
+
+                // Create mock session data
+                const sessionData = {
+                    cookies: [
+                        { name: 'test_session', value: 'direct_test_123', domain: 'github.com', path: '/' },
+                        { name: 'auth_token', value: 'token_456', domain: 'github.com', path: '/' },
+                        { name: 'user_pref', value: 'theme=dark', domain: 'github.com', path: '/' }
+                    ],
+                    url: 'https://github.com/mrx-arafat',
+                    title: 'Direct Test Session',
+                    timestamp: Date.now()
+                };
+
+                log('📊 Created test session data with ' + sessionData.cookies.length + ' cookies');
+
+                // Test module availability
+                const modules = {
+                    QRious: typeof QRious !== 'undefined',
+                    qrShareDirect: typeof window.qrShareDirect !== 'undefined',
+                    payloadManager: typeof window.payloadManager !== 'undefined',
+                    mobileFlow: typeof window.mobileFlow !== 'undefined',
+                    base64url: typeof window.base64url !== 'undefined'
+                };
+
+                const loadedModules = Object.entries(modules).filter(([k,v]) => v).map(([k]) => k);
+                const missingModules = Object.entries(modules).filter(([k,v]) => !v).map(([k]) => k);
+
+                log('✅ Loaded modules: ' + loadedModules.join(', '));
+                if (missingModules.length > 0) {
+                    log('❌ Missing modules: ' + missingModules.join(', '));
+                }
+
+                if (typeof window.qrShareDirect !== 'undefined') {
+                    log('🚀 Generating QR code...');
+                    updateStatus('🔄 Generating QR code with advanced mobile flow...', 'info');
+
+                    // Generate QR code
+                    window.currentQRUrl = await window.qrShareDirect.generateDirectLoginQR(sessionData, 'direct-qr-canvas');
+
+                    log('✅ QR code generated successfully!');
+                    log('📏 QR URL length: ' + window.currentQRUrl.length + ' characters');
+                    log('🔗 QR URL type: ' + (window.currentQRUrl.startsWith('secureshare://') ? 'Deep Link' :
+                                                window.currentQRUrl.startsWith('data:') ? 'Fallback Page' : 'Other'));
+
+                    // Update info
+                    document.getElementById('qr-info').innerHTML = `
+                        <strong>QR Generated!</strong><br>
+                        URL Length: ${window.currentQRUrl.length} chars<br>
+                        Type: ${window.currentQRUrl.startsWith('secureshare://') ? 'Deep Link (Auto-Apply)' :
+                               window.currentQRUrl.startsWith('data:') ? 'Fallback Page' : 'Other'}<br>
+                        <small>Scan with mobile device to test</small>
+                    `;
+
+                    updateStatus('✅ QR code generated successfully! Scan with mobile device to test.', 'success');
+
+                } else {
+                    log('❌ QR module not available');
+                    updateStatus('❌ QR module not loaded. Check console for details.', 'error');
+                }
+
+            } catch (error) {
+                log('❌ Direct QR test failed: ' + error.message);
+                updateStatus('❌ Direct test failed: ' + error.message, 'error');
+                console.error('Direct QR test error:', error);
+            }
+        }
+
+        function testQRContent() {
+            if (window.currentQRUrl) {
+                log('📱 Opening QR content for testing...');
+                window.open(window.currentQRUrl, '_blank');
+                updateStatus('📱 QR content opened in new tab - test it!', 'info');
+            } else {
+                log('❌ No QR URL available');
+                updateStatus('❌ Generate QR first!', 'error');
+            }
+        }
+
+        function openFinalTest() {
+            try {
+                log('🧪 Opening final test page...');
+                window.open('FINAL-WORKING-TEST.html', '_blank');
+                updateStatus('🧪 Final test page opened in new tab', 'info');
+            } catch (error) {
+                log('❌ Failed to open final test: ' + error.message);
+                updateStatus('❌ Failed to open final test: ' + error.message, 'error');
+            }
+        }
+
+        // Auto-load extension on page load
+        window.addEventListener('load', function() {
+            log('🔧 Extension test page loaded');
+            updateStatus('✅ Ready to test extension QR functionality', 'success');
+            
+            // Auto-load extension after a short delay
+            setTimeout(loadExtension, 1000);
+        });
+    </script>
+</body>
+</html>

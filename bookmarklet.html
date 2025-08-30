@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔖 SecureShare Bookmarklet</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .title {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #d94343;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .bookmarklet {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 20px 0;
+            word-break: break-all;
+            border: 2px dashed #d94343;
+        }
+        .btn {
+            background: linear-gradient(135deg, #d94343 0%, #c13333 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(217, 67, 67, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(217, 67, 67, 0.4);
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #2196f3;
+        }
+        .instructions h3 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        .method {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #d94343;
+        }
+        .method h4 {
+            color: #d94343;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">🔖 SecureShare Bookmarklet</div>
+        
+        <div class="instructions">
+            <h3>📋 How to Apply SecureShare Sessions</h3>
+            <p>Use any of these methods to apply your SecureShare deep links:</p>
+        </div>
+
+        <div class="method">
+            <h4>🔗 Method 1: Direct URL Processing</h4>
+            <p>Copy your SecureShare deep link and replace the protocol:</p>
+            <div class="bookmarklet">
+                <strong>Original:</strong> secureshare://apply?v=1&data=...<br>
+                <strong>Replace with:</strong> http://localhost:5500/apply.html?v=1&data=...
+            </div>
+            <p>Then open the modified URL in your browser.</p>
+        </div>
+
+        <div class="method">
+            <h4>📱 Method 2: Manual Session Processor</h4>
+            <p>Use the manual session processor for any SecureShare link:</p>
+            <a href="apply-session.html" class="btn">🔧 Open Session Processor</a>
+            <p>Paste your secureshare:// link and click "Apply Session"</p>
+        </div>
+
+        <div class="method">
+            <h4>🔖 Method 3: Bookmarklet (Advanced)</h4>
+            <p>Drag this bookmarklet to your bookmarks bar:</p>
+            <div class="bookmarklet">
+                <a href="javascript:(function(){var link=prompt('Paste SecureShare deep link:');if(link && link.startsWith('secureshare://apply')){var url=new URL(link);var params=new URLSearchParams(url.search);var newUrl='http://localhost:5500/apply.html?'+params.toString();window.open(newUrl,'_blank');}else{alert('Invalid SecureShare link');}})();" style="color: #4CAF50; text-decoration: none; font-weight: bold;">📱 SecureShare Processor</a>
+            </div>
+            <p><strong>Instructions:</strong></p>
+            <ol>
+                <li>Drag the green link above to your bookmarks bar</li>
+                <li>When you have a SecureShare deep link, click the bookmark</li>
+                <li>Paste the link in the prompt</li>
+                <li>It will automatically open the session processor</li>
+            </ol>
+        </div>
+
+        <div class="method">
+            <h4>🎯 Method 4: Quick Test</h4>
+            <p>Test with your current deep link:</p>
+            <input type="text" id="test-link" placeholder="Paste secureshare://apply?v=1&data=..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;">
+            <button class="btn" onclick="processTestLink()">🚀 Process Link</button>
+        </div>
+
+        <div class="instructions">
+            <h3>🔄 What Happens Next</h3>
+            <ol>
+                <li><strong>Session Decoded:</strong> The deep link data is decoded and decompressed</li>
+                <li><strong>Data Formatted:</strong> Session data is formatted for the SecureShare extension</li>
+                <li><strong>Auto-Copied:</strong> Session data is automatically copied to your clipboard</li>
+                <li><strong>Extension Use:</strong> Open SecureShare extension → "Restore Session" → Paste → "Receive"</li>
+                <li><strong>Navigate:</strong> Go to the target website and you'll be logged in!</li>
+            </ol>
+        </div>
+
+        <div class="method">
+            <h4>🔧 Troubleshooting</h4>
+            <ul>
+                <li><strong>Decoding Fails:</strong> Make sure you copied the complete deep link</li>
+                <li><strong>Extension Not Working:</strong> Ensure SecureShare extension is installed and enabled</li>
+                <li><strong>Cookies Not Applied:</strong> Check that you're on the correct website domain</li>
+                <li><strong>Session Expired:</strong> Generate a new QR code if the session is old</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="debug-qr.html" class="btn">🔍 Debug Tools</a>
+            <a href="simple-qr-test.html" class="btn">🧪 QR Test</a>
+            <a href="FINAL-WORKING-TEST.html" class="btn">🎯 Complete Test</a>
+        </div>
+    </div>
+
+    <script>
+        function processTestLink() {
+            try {
+                const link = document.getElementById('test-link').value.trim();
+                
+                if (!link) {
+                    alert('Please paste a SecureShare deep link first');
+                    return;
+                }
+
+                if (!link.startsWith('secureshare://apply')) {
+                    alert('Invalid SecureShare link. Must start with "secureshare://apply"');
+                    return;
+                }
+
+                // Convert deep link to processor URL
+                const url = new URL(link);
+                const params = new URLSearchParams(url.search);
+                const processorUrl = `http://localhost:5500/apply.html?${params.toString()}`;
+                
+                console.log('Opening processor URL:', processorUrl);
+                window.open(processorUrl, '_blank');
+                
+            } catch (error) {
+                alert('Error processing link: ' + error.message);
+                console.error('Link processing error:', error);
+            }
+        }
+
+        // Auto-fill if URL contains test data
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const testLink = urlParams.get('test');
+            
+            if (testLink) {
+                document.getElementById('test-link').value = decodeURIComponent(testLink);
+            }
+        });
+    </script>
+</body>
+</html>
