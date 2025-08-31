@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Detection and Browser Optimization Tests</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .device-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .device-info h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .info-item {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #6c757d;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .info-value {
+            color: #495057;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+        .capability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .capability-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .capability-supported {
+            background: #d4edda;
+            color: #155724;
+        }
+        .capability-unsupported {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .optimization-demo {
+            border: 2px dashed #6c757d;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .mobile-preview {
+            max-width: 400px;
+            margin: 20px auto;
+            border: 2px solid #333;
+            border-radius: 20px;
+            overflow: hidden;
+            background: white;
+        }
+        .mobile-preview iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>📱 Device Detection & Browser Optimization Tests</h1>
+    <p>Test mobile device detection, browser capabilities, and UI optimization</p>
+
+    <div class="test-container">
+        <h2>Current Device Information</h2>
+        <div id="device-info-display" class="device-info">
+            <h4>Loading device information...</h4>
+        </div>
+        <button onclick="refreshDeviceInfo()">🔄 Refresh Device Info</button>
+        <button onclick="simulateMobile()">📱 Simulate Mobile</button>
+        <button onclick="simulateTablet()">📟 Simulate Tablet</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Browser Capabilities</h2>
+        <div id="capabilities-display" class="device-info">
+            <h4>Loading capabilities...</h4>
+        </div>
+        <button onclick="testCapabilities()">🧪 Test All Capabilities</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Compatibility Check</h2>
+        <div id="compatibility-display" class="device-info">
+            <h4>Loading compatibility...</h4>
+        </div>
+        <button onclick="checkCompatibility()">✅ Check Compatibility</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Controls</h2>
+        <button onclick="runAllTests()">🚀 Run All Tests</button>
+        <button onclick="testMobileDetection()">📱 Test Mobile Detection</button>
+        <button onclick="testBrowserDetection()">🌐 Test Browser Detection</button>
+        <button onclick="testCapabilityDetection()">🔧 Test Capabilities</button>
+        <button onclick="testUIOptimization()">🎨 Test UI Optimization</button>
+        <button onclick="testExtensionDetection()">🔌 Test Extension Detection</button>
+        <button onclick="clearResults()">🗑️ Clear Results</button>
+    </div>
+
+    <div class="test-container">
+        <h2>UI Optimization Demo</h2>
+        <div class="optimization-demo" id="optimization-demo">
+            <p>This area will show UI optimizations based on your device</p>
+            <button class="btn">Sample Button</button>
+            <div class="step">1</div>
+            <div class="step">2</div>
+            <div class="step">3</div>
+        </div>
+        <button onclick="applyOptimizations()">✨ Apply Optimizations</button>
+        <button onclick="resetOptimizations()">🔄 Reset</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Mobile Preview</h2>
+        <p>Preview how the mobile session page looks with device detection:</p>
+        <div class="mobile-preview">
+            <iframe id="mobile-iframe" src="about:blank"></iframe>
+        </div>
+        <button onclick="loadMobilePreview()">📱 Load Mobile Page</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <!-- Load device detection module -->
+    <script src="../mobile/js/deviceDetection.js"></script>
+
+    <!-- Test Suite -->
+    <script>
+        let testResults = [];
+        let testCount = 0;
+        let passCount = 0;
+        let deviceInfo = null;
+
+        function addTestResult(name, passed, message, details = null) {
+            testCount++;
+            if (passed) passCount++;
+            
+            testResults.push({
+                name,
+                passed,
+                message,
+                details,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            updateTestDisplay();
+        }
+
+        function updateTestDisplay() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = '';
+            
+            // Add summary
+            const summary = document.createElement('div');
+            summary.className = 'test-result test-info';
+            summary.textContent = `Tests: ${testCount} | Passed: ${passCount} | Failed: ${testCount - passCount}`;
+            container.appendChild(summary);
+            
+            // Add individual results
+            testResults.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `test-result ${result.passed ? 'test-pass' : 'test-fail'}`;
+                
+                let content = `[${result.timestamp}] ${result.passed ? '✅' : '❌'} ${result.name}: ${result.message}`;
+                if (result.details) {
+                    content += `\nDetails: ${JSON.stringify(result.details, null, 2)}`;
+                }
+                
+                div.textContent = content;
+                container.appendChild(div);
+            });
+        }
+
+        function clearResults() {
+            testResults = [];
+            testCount = 0;
+            passCount = 0;
+            updateTestDisplay();
+        }
+
+        function refreshDeviceInfo() {
+            if (window.deviceDetection) {
+                deviceInfo = window.deviceDetection.initialize();
+                displayDeviceInfo(deviceInfo);
+            } else {
+                document.getElementById('device-info-display').innerHTML = '<h4>❌ Device detection module not loaded</h4>';
+            }
+        }
+
+        function displayDeviceInfo(info) {
+            if (!info) return;
+            
+            const container = document.getElementById('device-info-display');
+            container.innerHTML = `
+                <h4>📱 Device Information</h4>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Device Type</div>
+                        <div class="info-value">${info.device.isMobile ? 'Mobile' : info.device.isTablet ? 'Tablet' : 'Desktop'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Screen Size</div>
+                        <div class="info-value">${info.device.screenWidth} × ${info.device.screenHeight}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Pixel Ratio</div>
+                        <div class="info-value">${info.device.pixelRatio}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Touch Support</div>
+                        <div class="info-value">${info.device.hasTouch ? 'Yes' : 'No'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Orientation</div>
+                        <div class="info-value">${info.device.isPortrait ? 'Portrait' : 'Landscape'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Browser</div>
+                        <div class="info-value">${info.browser.name} ${info.browser.version}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function testCapabilities() {
+            if (!window.deviceDetection) {
+                addTestResult('Capabilities Test', false, 'Device detection module not loaded');
+                return;
+            }
+
+            const capabilities = window.deviceDetection.checkBrowserCapabilities();
+            displayCapabilities(capabilities);
+            
+            const supportedCount = Object.values(capabilities).filter(Boolean).length;
+            const totalCount = Object.keys(capabilities).length;
+            
+            addTestResult('Browser Capabilities', true, `${supportedCount}/${totalCount} capabilities supported`, capabilities);
+        }
+
+        function displayCapabilities(capabilities) {
+            const container = document.getElementById('capabilities-display');
+            container.innerHTML = `
+                <h4>🔧 Browser Capabilities</h4>
+                <div class="capability-grid">
+                    ${Object.entries(capabilities).map(([key, supported]) => `
+                        <div class="capability-item ${supported ? 'capability-supported' : 'capability-unsupported'}">
+                            ${supported ? '✅' : '❌'} ${key}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function checkCompatibility() {
+            if (!window.deviceDetection) {
+                addTestResult('Compatibility Check', false, 'Device detection module not loaded');
+                return;
+            }
+
+            const compatibility = window.deviceDetection.getBrowserCompatibility();
+            displayCompatibility(compatibility);
+            
+            addTestResult('Browser Compatibility', compatibility.supported, 
+                `Compatibility level: ${compatibility.level}`, compatibility);
+        }
+
+        function displayCompatibility(compatibility) {
+            const container = document.getElementById('compatibility-display');
+            
+            const levelColors = {
+                'none': '#dc3545',
+                'basic': '#ffc107', 
+                'enhanced': '#28a745',
+                'full': '#007bff'
+            };
+            
+            container.innerHTML = `
+                <h4>✅ Browser Compatibility</h4>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Supported</div>
+                        <div class="info-value">${compatibility.supported ? 'Yes' : 'No'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Level</div>
+                        <div class="info-value" style="color: ${levelColors[compatibility.level]}">${compatibility.level}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Issues</div>
+                        <div class="info-value">${compatibility.issues.length}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Recommendations</div>
+                        <div class="info-value">${compatibility.recommendations.length}</div>
+                    </div>
+                </div>
+                ${compatibility.issues.length > 0 ? `
+                    <h5>⚠️ Issues Found:</h5>
+                    <ul>${compatibility.issues.map(issue => `<li>${issue}</li>`).join('')}</ul>
+                ` : ''}
+                ${compatibility.recommendations.length > 0 ? `
+                    <h5>💡 Recommendations:</h5>
+                    <ul>${compatibility.recommendations.map(rec => `<li>${rec}</li>`).join('')}</ul>
+                ` : ''}
+            `;
+        }
+
+        function testMobileDetection() {
+            if (!window.deviceDetection) {
+                addTestResult('Mobile Detection', false, 'Device detection module not loaded');
+                return;
+            }
+
+            const device = window.deviceDetection.detectMobileDevice();
+            
+            addTestResult('Mobile Detection', true, 'Device detection completed', {
+                isMobile: device.isMobile,
+                isTablet: device.isTablet,
+                hasTouch: device.hasTouch,
+                screenSize: `${device.screenWidth}x${device.screenHeight}`
+            });
+        }
+
+        function testBrowserDetection() {
+            if (!window.deviceDetection) {
+                addTestResult('Browser Detection', false, 'Device detection module not loaded');
+                return;
+            }
+
+            const browser = window.deviceDetection.detectBrowser();
+            
+            addTestResult('Browser Detection', true, 'Browser detection completed', {
+                name: browser.name,
+                version: browser.version,
+                isWebView: browser.isWebView,
+                isInApp: browser.isInApp
+            });
+        }
+
+        function testCapabilityDetection() {
+            testCapabilities();
+        }
+
+        function testUIOptimization() {
+            if (!window.deviceDetection) {
+                addTestResult('UI Optimization', false, 'Device detection module not loaded');
+                return;
+            }
+
+            // Test UI optimization by applying it
+            window.deviceDetection.optimizeForMobile();
+            
+            // Check if classes were applied
+            const body = document.body;
+            const appliedClasses = [];
+            
+            if (body.classList.contains('device-mobile')) appliedClasses.push('device-mobile');
+            if (body.classList.contains('device-tablet')) appliedClasses.push('device-tablet');
+            if (body.classList.contains('device-touch')) appliedClasses.push('device-touch');
+            if (body.classList.contains('screen-small')) appliedClasses.push('screen-small');
+            
+            addTestResult('UI Optimization', true, 'UI optimizations applied', {
+                appliedClasses,
+                totalClasses: appliedClasses.length
+            });
+        }
+
+        function testExtensionDetection() {
+            if (!window.deviceDetection) {
+                addTestResult('Extension Detection', false, 'Device detection module not loaded');
+                return;
+            }
+
+            const hasExtension = window.deviceDetection.detectExtensionAvailability();
+            
+            addTestResult('Extension Detection', true, `Extension detected: ${hasExtension}`, {
+                hasExtension,
+                hasChrome: !!window.chrome,
+                hasRuntime: !!(window.chrome && window.chrome.runtime),
+                hasCookies: !!(window.chrome && window.chrome.cookies)
+            });
+        }
+
+        function applyOptimizations() {
+            if (window.deviceDetection) {
+                window.deviceDetection.optimizeForMobile();
+                document.getElementById('optimization-demo').innerHTML += '<p>✨ Optimizations applied!</p>';
+            }
+        }
+
+        function resetOptimizations() {
+            // Remove device-specific classes
+            const body = document.body;
+            body.classList.remove('device-mobile', 'device-tablet', 'device-touch', 'screen-small');
+            
+            // Reset demo area
+            document.getElementById('optimization-demo').innerHTML = `
+                <p>This area will show UI optimizations based on your device</p>
+                <button class="btn">Sample Button</button>
+                <div class="step">1</div>
+                <div class="step">2</div>
+                <div class="step">3</div>
+            `;
+        }
+
+        function simulateMobile() {
+            // Mock mobile device for testing
+            if (window.deviceDetection) {
+                const originalDetect = window.deviceDetection.detectMobileDevice;
+                window.deviceDetection.detectMobileDevice = function() {
+                    return {
+                        isMobile: true,
+                        isTablet: false,
+                        isDesktop: false,
+                        hasTouch: true,
+                        screenWidth: 375,
+                        screenHeight: 667,
+                        pixelRatio: 2,
+                        isPortrait: true,
+                        isLandscape: false,
+                        isSmallScreen: true,
+                        isMediumScreen: false,
+                        isLargeScreen: false,
+                        userAgent: 'Mobile simulation'
+                    };
+                };
+                
+                refreshDeviceInfo();
+                
+                // Restore original function after 5 seconds
+                setTimeout(() => {
+                    window.deviceDetection.detectMobileDevice = originalDetect;
+                }, 5000);
+            }
+        }
+
+        function simulateTablet() {
+            // Mock tablet device for testing
+            if (window.deviceDetection) {
+                const originalDetect = window.deviceDetection.detectMobileDevice;
+                window.deviceDetection.detectMobileDevice = function() {
+                    return {
+                        isMobile: false,
+                        isTablet: true,
+                        isDesktop: false,
+                        hasTouch: true,
+                        screenWidth: 768,
+                        screenHeight: 1024,
+                        pixelRatio: 2,
+                        isPortrait: true,
+                        isLandscape: false,
+                        isSmallScreen: false,
+                        isMediumScreen: true,
+                        isLargeScreen: false,
+                        userAgent: 'Tablet simulation'
+                    };
+                };
+                
+                refreshDeviceInfo();
+                
+                // Restore original function after 5 seconds
+                setTimeout(() => {
+                    window.deviceDetection.detectMobileDevice = originalDetect;
+                }, 5000);
+            }
+        }
+
+        function loadMobilePreview() {
+            const iframe = document.getElementById('mobile-iframe');
+            iframe.src = '../mobile/index.html';
+        }
+
+        async function runAllTests() {
+            clearResults();
+            addTestResult('Test Suite', true, 'Starting device detection and optimization tests...');
+            
+            testMobileDetection();
+            testBrowserDetection();
+            testCapabilityDetection();
+            testUIOptimization();
+            testExtensionDetection();
+            checkCompatibility();
+            
+            addTestResult('Test Suite', true, 'All tests completed!');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshDeviceInfo();
+            testCapabilities();
+            checkCompatibility();
+            updateTestDisplay();
+        });
+    </script>
+</body>
+</html>

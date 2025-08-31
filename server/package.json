@@ -1,0 +1,45 @@
+{
+  "name": "secureshare-session-storage",
+  "version": "1.0.0",
+  "description": "Temporary session storage API for SecureShare mobile access",
+  "main": "sessionStorage.js",
+  "scripts": {
+    "start": "node sessionStorage.js",
+    "dev": "nodemon sessionStorage.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "secureshare",
+    "session",
+    "storage",
+    "api",
+    "encryption",
+    "temporary"
+  ],
+  "author": "SecureShare Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.6.1",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrx-arafat/SecureShare.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mrx-arafat/SecureShare/issues"
+  },
+  "homepage": "https://github.com/mrx-arafat/SecureShare#readme"
+}

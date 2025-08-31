@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Debug - Extension Flow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .warning { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-canvas {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 QR Debug - Extension Flow</h1>
+    
+    <div class="debug-section">
+        <h3>📋 Mock Session Data</h3>
+        <label>URL:</label>
+        <input type="text" id="session-url" value="https://github.com" placeholder="Website URL">
+        
+        <label>Title:</label>
+        <input type="text" id="session-title" value="GitHub" placeholder="Page title">
+        
+        <label>Domain:</label>
+        <input type="text" id="session-domain" value="github.com" placeholder="Domain">
+        
+        <button onclick="updateSessionData()">Update Session Data</button>
+        <div id="session-status" class="status info">Session data ready</div>
+    </div>
+
+    <div class="debug-section">
+        <h3>🔧 Module Availability Check</h3>
+        <button onclick="checkModules()">Check All Modules</button>
+        <div id="module-status" class="status info">Click to check modules...</div>
+        <div id="module-details"></div>
+    </div>
+
+    <div class="debug-section">
+        <h3>🚀 QR Generation Test</h3>
+        <button onclick="testQRGeneration()" id="qr-test-btn">Test QR Generation</button>
+        <button onclick="testSecureLink()" id="secure-link-btn">Test Secure Link Only</button>
+        <div id="qr-status" class="status info">Ready to test QR generation...</div>
+        
+        <div class="qr-container">
+            <canvas id="test-qr-canvas" width="200" height="200" class="qr-canvas"></canvas>
+            <div id="qr-result-info">QR code will appear here...</div>
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h3>📊 Debug Log</h3>
+        <button onclick="clearLog()">Clear Log</button>
+        <div id="debug-log" class="log">Debug log initialized...\n</div>
+    </div>
+
+    <!-- Mock Chrome APIs for testing -->
+    <script>
+        // Mock Chrome APIs for browser testing
+        if (!window.chrome) {
+            window.chrome = {
+                tabs: {
+                    query: function(queryInfo, callback) {
+                        // Mock current tab
+                        const mockTab = {
+                            id: 1,
+                            url: document.getElementById('session-url').value || 'https://github.com',
+                            title: document.getElementById('session-title').value || 'GitHub',
+                            active: true,
+                            windowId: 1
+                        };
+                        callback([mockTab]);
+                    },
+                    create: function(createProperties) {
+                        console.log('Mock: Would create tab with URL:', createProperties.url);
+                        window.open(createProperties.url, '_blank');
+                    }
+                },
+                cookies: {
+                    getAll: function(details, callback) {
+                        // Mock cookies for the current domain
+                        const mockCookies = [
+                            { name: 'user_session', value: 'test_session_123', domain: '.github.com', secure: true, httpOnly: true, path: '/' },
+                            { name: '_gh_sess', value: 'test_gh_session_456', domain: '.github.com', secure: true, httpOnly: false, path: '/' },
+                            { name: 'logged_in', value: 'yes', domain: '.github.com', secure: true, httpOnly: false, path: '/' }
+                        ];
+                        console.log('Mock: Returning cookies for', details.url, mockCookies);
+                        callback(mockCookies);
+                    },
+                    set: function(details, callback) {
+                        console.log('Mock: Would set cookie:', details);
+                        if (callback) callback(details);
+                    }
+                },
+                runtime: {
+                    lastError: null
+                }
+            };
+            console.log('✅ Chrome APIs mocked for browser testing');
+        }
+    </script>
+
+    <!-- Load Extension Scripts -->
+    <script src="../popup/js/vendor/qrious.min.js"></script>
+    <script src="../popup/js/vendor/sjcl.min.js"></script>
+    <script src="../popup/js/vendor/base64.min.js"></script>
+    <script src="../popup/js/vendor/rawdeflate.min.js"></script>
+    <script src="../popup/js/log.js"></script>
+    <script src="../popup/js/configuration.js"></script>
+    <script src="../popup/js/http.js"></script>
+    <script src="../popup/js/cryptography.js"></script>
+    <script src="../popup/js/cookieManager.js"></script>
+    <script src="../popup/js/base64url.js"></script>
+    <script src="../popup/js/payloadManager.js"></script>
+    <script src="../popup/js/qrShareDirect.js"></script>
+
+    <!-- Add required functions from main.js -->
+    <script>
+        // Add getCurrentTab function from main.js
+        function getCurrentTab(callback) {
+            if (window.chrome && window.chrome.tabs) {
+                chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+                    callback(tabs[0]);
+                });
+            } else {
+                // Fallback for testing
+                const mockTab = {
+                    id: 1,
+                    url: document.getElementById('session-url').value || 'https://github.com',
+                    title: document.getElementById('session-title').value || 'GitHub',
+                    active: true,
+                    windowId: 1
+                };
+                callback(mockTab);
+            }
+        }
+
+        // Make getCurrentTab available globally
+        window.getCurrentTab = getCurrentTab;
+    </script>
+
+    <script>
+        let currentSessionData = {
+            url: 'https://github.com',
+            title: 'GitHub',
+            domain: 'github.com',
+            cookies: [
+                { name: 'user_session', value: 'test_session_123', domain: '.github.com', secure: true, httpOnly: true },
+                { name: '_gh_sess', value: 'test_gh_session_456', domain: '.github.com', secure: true, httpOnly: false },
+                { name: 'logged_in', value: 'yes', domain: '.github.com', secure: true, httpOnly: false }
+            ],
+            timestamp: Date.now()
+        };
+
+        function log(message) {
+            const logEl = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.textContent += `[${timestamp}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `status ${type}`;
+        }
+
+        function updateSessionData() {
+            currentSessionData.url = document.getElementById('session-url').value;
+            currentSessionData.title = document.getElementById('session-title').value;
+            currentSessionData.domain = document.getElementById('session-domain').value;
+            currentSessionData.timestamp = Date.now();
+            
+            log(`📋 Session data updated: ${currentSessionData.domain}`);
+            updateStatus('session-status', `✅ Session data updated: ${currentSessionData.domain}`, 'success');
+        }
+
+        function checkModules() {
+            log('🔍 Checking module availability...');
+            
+            const modules = {
+                'QRious': typeof QRious,
+                'sjcl': typeof sjcl,
+                'window.qrShareDirect': typeof window.qrShareDirect,
+                'window.payloadManager': typeof window.payloadManager,
+                'window.base64url': typeof window.base64url,
+                'window.cryptography': typeof window.cryptography,
+                'window.log': typeof window.log,
+                'window.http': typeof window.http
+            };
+
+            let allLoaded = true;
+            let details = '';
+
+            for (const [name, type] of Object.entries(modules)) {
+                const status = type !== 'undefined' ? '✅' : '❌';
+                const message = `${status} ${name}: ${type}`;
+                log(message);
+                details += `${message}\n`;
+                
+                if (type === 'undefined') {
+                    allLoaded = false;
+                }
+            }
+
+            document.getElementById('module-details').innerHTML = `<pre>${details}</pre>`;
+            
+            if (allLoaded) {
+                updateStatus('module-status', '✅ All modules loaded successfully', 'success');
+            } else {
+                updateStatus('module-status', '❌ Some modules failed to load', 'error');
+            }
+        }
+
+        async function testSecureLink() {
+            log('🔗 Testing secure link creation only...');
+            updateStatus('qr-status', 'Testing secure link creation...', 'info');
+
+            try {
+                if (!window.qrShareDirect) {
+                    throw new Error('qrShareDirect module not available');
+                }
+
+                // Test the secure link creation method directly
+                const encryptionKey = window.qrShareDirect.generateEncryptionKey();
+                log(`🔑 Generated encryption key: ${encryptionKey.substring(0, 16)}...`);
+
+                const secureLink = await window.qrShareDirect.createSecureLink(currentSessionData, encryptionKey);
+                log(`✅ Secure link created: ${secureLink}`);
+                
+                updateStatus('qr-status', '✅ Secure link created successfully', 'success');
+                document.getElementById('qr-result-info').innerHTML = `
+                    <strong>Secure Link:</strong><br>
+                    <div style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                        ${secureLink}
+                    </div>
+                    <button onclick="window.open('${secureLink}', '_blank')">Test Link</button>
+                `;
+
+            } catch (error) {
+                log(`❌ Secure link test failed: ${error.message}`);
+                updateStatus('qr-status', `❌ Failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testQRGeneration() {
+            log('🚀 Testing full QR generation...');
+            updateStatus('qr-status', 'Testing QR generation...', 'info');
+            
+            const button = document.getElementById('qr-test-btn');
+            button.disabled = true;
+            button.textContent = '⏳ Generating...';
+
+            try {
+                if (!window.qrShareDirect) {
+                    throw new Error('qrShareDirect module not available');
+                }
+
+                log('📊 Session data being used:');
+                log(`   URL: ${currentSessionData.url}`);
+                log(`   Domain: ${currentSessionData.domain}`);
+                log(`   Cookies: ${currentSessionData.cookies.length}`);
+
+                const qrUrl = await window.qrShareDirect.generateDirectLoginQR(currentSessionData, 'test-qr-canvas');
+                
+                log(`✅ QR generation successful!`);
+                log(`🔗 QR URL: ${qrUrl}`);
+                
+                updateStatus('qr-status', '✅ QR code generated successfully', 'success');
+                document.getElementById('qr-result-info').innerHTML = `
+                    <strong>Generated QR URL:</strong><br>
+                    <div style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                        ${qrUrl}
+                    </div>
+                    <button onclick="window.open('${qrUrl}', '_blank')">Test URL</button>
+                    <button onclick="copyToClipboard('${qrUrl}')">Copy URL</button>
+                `;
+
+            } catch (error) {
+                log(`❌ QR generation failed: ${error.message}`);
+                log(`❌ Error stack: ${error.stack}`);
+                updateStatus('qr-status', `❌ Failed: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test QR Generation';
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                log('📋 URL copied to clipboard');
+            }).catch(err => {
+                log(`❌ Copy failed: ${err.message}`);
+            });
+        }
+
+        function clearLog() {
+            document.getElementById('debug-log').textContent = 'Debug log cleared...\n';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🔧 QR Debug Extension Flow initialized');
+            log('📡 Testing SecureShare QR generation with extension modules');
+            
+            // Auto-check modules on load
+            setTimeout(checkModules, 1000);
+        });
+    </script>
+</body>
+</html>

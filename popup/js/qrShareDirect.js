@@ -29,7 +29,10 @@
     // Configuration
     PREFER_DEEP_LINK: true,
     PREFER_ENCRYPTION: true,
+    PREFER_SECURE_LINKS: true, // New: Prefer secure links over embedded data
     MAX_QR_SIZE: 2500, // Target size for reliable scanning
+    SECURE_LINK_MAX_SIZE: 200, // Max size for secure links
+    SESSION_STORAGE_API: 'http://localhost:3001', // Session storage API endpoint
 
     /**
      * Generate advanced QR code with auto-apply and fallback
@@ -39,13 +42,33 @@
      * @returns {Promise<string>} Generated QR URL (deep link or fallback)
      */
     generateDirectLoginQR: async function(sessionData, canvasId = 'js-qr-canvas-share', recipientPublicKey = null) {
-      log('🚀 Generating advanced mobile QR with auto-apply...')
+      log('🚀 Generating advanced mobile QR with secure links...')
 
       try {
         // Step 1: Validate session data
         this.validateSessionData(sessionData)
 
-        // Step 2: Create optimized payload
+        // Step 2: Try secure link approach first (new method)
+        if (this.PREFER_SECURE_LINKS) {
+          try {
+            this.updateQRStatus('Capturing session...', 'info')
+            const secureLink = await this.createSecureLink(sessionData)
+
+            this.updateQRStatus('Generating QR...', 'info')
+            await this.renderQRCode(secureLink, canvasId)
+
+            this.updateQRStatus('Ready to scan!', 'success')
+            log('✅ Secure link QR generated successfully!')
+            log('🔗 Secure link:', secureLink)
+            return secureLink
+          } catch (secureError) {
+            log('⚠️ Secure link failed, falling back to embedded data:', secureError.message)
+            this.updateQRStatus('Falling back to embedded data...', 'warning')
+          }
+        }
+
+        // Step 3: Fallback to original method (embedded data)
+        this.updateQRStatus('Encrypting session...', 'info')
         const payload = await this.createOptimizedPayload(sessionData, recipientPublicKey)
         log('📦 Payload created:', {
           size: payload.size,
@@ -54,7 +77,7 @@
           needsTokenization: payload.needsTokenization
         })
 
-        // Step 3: Generate QR URL (deep link or tokenized)
+        // Step 4: Generate QR URL (deep link or tokenized)
         let qrUrl
         if (payload.needsTokenization) {
           qrUrl = await this.generateTokenizedQR(payload, sessionData)
@@ -62,9 +85,11 @@
           qrUrl = await this.generateDirectQR(payload, sessionData)
         }
 
-        // Step 4: Render QR code
+        // Step 5: Render QR code
+        this.updateQRStatus('Generating QR...', 'info')
         await this.renderQRCode(qrUrl, canvasId)
 
+        this.updateQRStatus('Ready to scan!', 'success')
         log('✅ Advanced QR generated successfully!')
         log('📱 QR URL type:', qrUrl.startsWith('secureshare://') ? 'Deep Link (Auto-Apply)' : 'Fallback Page')
 
@@ -72,14 +97,17 @@
 
       } catch (error) {
         log('❌ QR generation failed:', error)
+        this.updateQRStatus('Generation failed, creating emergency fallback...', 'error')
 
         // Emergency fallback - create simple instruction page
         try {
           const fallbackUrl = await this.createEmergencyFallback(sessionData)
           await this.renderQRCode(fallbackUrl, canvasId)
+          this.updateQRStatus('Emergency fallback ready', 'warning')
           return fallbackUrl
         } catch (fallbackError) {
           log('💥 Emergency fallback also failed:', fallbackError)
+          this.updateQRStatus('QR generation completely failed', 'error')
           throw new Error('QR generation completely failed: ' + error.message)
         }
       }
@@ -108,6 +136,127 @@
       }
 
       log('✅ Session data validation passed')
+    },
+
+    /**
+     * Create secure link by storing session data on server
+     * @param {Object} sessionData - Session data to store
+     * @returns {Promise<string>} Secure link URL
+     */
+    createSecureLink: async function(sessionData) {
+      try {
+        log('🔗 Creating secure link via session storage API...')
+
+        // Use sessionCapture if available for enhanced data
+        let enhancedSessionData = sessionData
+        if (window.sessionCapture) {
+          try {
+            enhancedSessionData = await window.sessionCapture.captureCurrentSession()
+            log('📈 Enhanced session data captured')
+          } catch (error) {
+            log('⚠️ Enhanced capture failed, using basic data:', error.message)
+          }
+        }
+
+        // Generate encryption key
+        const encryptionKey = this.generateEncryptionKey()
+
+        // Prepare session data for storage
+        const sessionPayload = {
+          url: enhancedSessionData.url,
+          title: enhancedSessionData.title || 'Shared Session',
+          domain: enhancedSessionData.domain || this.extractDomain(enhancedSessionData.url),
+          cookies: enhancedSessionData.cookies || [],
+          timestamp: Date.now(),
+          version: '1.0'
+        }
+
+        // Store session data via API
+        const response = await fetch(`${this.SESSION_STORAGE_API}/api/sessions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            sessionData: sessionPayload,
+            encryptionKey: encryptionKey,
+            ttl: 1800 // 30 minutes
+          })
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(`API Error: ${errorData.error || response.statusText}`)
+        }
+
+        const result = await response.json()
+
+        // Create secure link
+        const secureLink = `http://localhost:6969/s/${result.sessionId}?k=${encryptionKey}`
+
+        // Optimize link size
+        const optimizedLink = this.optimizeQRSize(secureLink)
+
+        log('✅ Secure link created successfully')
+        log('📊 Link size:', optimizedLink.length, 'characters')
+
+        return optimizedLink
+
+      } catch (error) {
+        log('❌ Secure link creation failed:', error.message)
+        throw new Error(`Failed to create secure link: ${error.message}`)
+      }
+    },
+
+    /**
+     * Generate cryptographically secure encryption key
+     * @returns {string} 64-character hex string (32 bytes)
+     */
+    generateEncryptionKey: function() {
+      if (window.crypto && window.crypto.getRandomValues) {
+        const array = new Uint8Array(32)
+        window.crypto.getRandomValues(array)
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+      } else {
+        // Fallback for older browsers
+        let key = ''
+        for (let i = 0; i < 64; i++) {
+          key += Math.floor(Math.random() * 16).toString(16)
+        }
+        return key
+      }
+    },
+
+    /**
+     * Extract domain from URL
+     * @param {string} url - Full URL
+     * @returns {string} Domain name
+     */
+    extractDomain: function(url) {
+      try {
+        const urlObj = new URL(url)
+        return urlObj.hostname
+      } catch (error) {
+        log('⚠️ Failed to extract domain from URL:', url)
+        return 'unknown'
+      }
+    },
+
+    /**
+     * Optimize QR code size by ensuring link is under size limit
+     * @param {string} link - Original link
+     * @returns {string} Optimized link
+     */
+    optimizeQRSize: function(link) {
+      if (link.length <= this.SECURE_LINK_MAX_SIZE) {
+        return link
+      }
+
+      log('⚠️ Link too long for optimal QR scanning:', link.length, 'characters')
+
+      // For now, return as-is but log warning
+      // In production, you might want to use URL shortening service
+      return link
     },
 
     /**

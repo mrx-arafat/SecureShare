@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Data Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .data-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .website-card {
+            background: #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            display: inline-block;
+            min-width: 200px;
+            vertical-align: top;
+        }
+        .website-logo {
+            width: 32px;
+            height: 32px;
+            background: #007bff;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 10px;
+            text-align: center;
+            line-height: 32px;
+            color: white;
+            font-weight: bold;
+        }
+        .cookie-count {
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+        .data-size {
+            background: #17a2b8;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        .controls {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .controls label {
+            display: inline-block;
+            margin: 5px 10px;
+        }
+        .controls input, .controls select {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Data Generator</h1>
+    <p>Generate realistic session data for testing SecureShare functionality across various popular websites</p>
+
+    <div class="test-container">
+        <h2>Generation Controls</h2>
+        <div class="controls">
+            <label>
+                Website Type:
+                <select id="website-type">
+                    <option value="streaming">Streaming Services</option>
+                    <option value="social">Social Media</option>
+                    <option value="ecommerce">E-commerce</option>
+                    <option value="productivity">Productivity</option>
+                    <option value="gaming">Gaming</option>
+                    <option value="news">News & Media</option>
+                    <option value="all">All Categories</option>
+                </select>
+            </label>
+            <label>
+                Cookie Count:
+                <select id="cookie-count">
+                    <option value="minimal">Minimal (5-10)</option>
+                    <option value="normal">Normal (10-25)</option>
+                    <option value="heavy">Heavy (25-50)</option>
+                    <option value="extreme">Extreme (50-100)</option>
+                </select>
+            </label>
+            <label>
+                Session Type:
+                <select id="session-type">
+                    <option value="authenticated">Authenticated</option>
+                    <option value="guest">Guest</option>
+                    <option value="premium">Premium User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </label>
+            <label>
+                Include Tracking:
+                <input type="checkbox" id="include-tracking" checked>
+            </label>
+        </div>
+        <button onclick="generateSingleSession()">🎯 Generate Single Session</button>
+        <button onclick="generateMultipleSessions()">📊 Generate Multiple Sessions</button>
+        <button onclick="generateStressTestData()">💥 Generate Stress Test Data</button>
+        <button onclick="generateEdgeCases()">⚠️ Generate Edge Cases</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Popular Websites</h2>
+        <div id="website-gallery">
+            <!-- Website cards will be populated here -->
+        </div>
+        <button onclick="showWebsiteGallery()">🌐 Show Website Gallery</button>
+        <button onclick="generateFromWebsite()">🎯 Generate from Selected</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Generated Session Data</h2>
+        <div class="data-preview" id="session-data-preview">
+            <p>Generated session data will appear here...</p>
+        </div>
+        <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+        <button onclick="downloadAsJSON()">💾 Download JSON</button>
+        <button onclick="exportForTesting()">🧪 Export for Testing</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Batch Generation</h2>
+        <div id="batch-results">
+            <p>Batch generation results will appear here...</p>
+        </div>
+        <button onclick="generateTestSuite()">🚀 Generate Test Suite</button>
+        <button onclick="generatePerformanceData()">⚡ Generate Performance Data</button>
+        <button onclick="generateSecurityTestData()">🔒 Generate Security Test Data</button>
+    </div>
+
+    <script>
+        // Website database with realistic session data patterns
+        const websiteDatabase = {
+            streaming: [
+                {
+                    name: 'Netflix',
+                    url: 'https://www.netflix.com/browse',
+                    domain: '.netflix.com',
+                    logo: 'N',
+                    authCookies: ['NetflixId', 'SecureNetflixId', 'nfvdid', 'memclid'],
+                    sessionCookies: ['flwssn', 'profilesNewSession'],
+                    trackingCookies: ['_ga', '_gid', '_fbp', 'optimizelyEndUserId'],
+                    securityFeatures: ['secure', 'httpOnly', 'sameSite']
+                },
+                {
+                    name: 'YouTube',
+                    url: 'https://www.youtube.com/feed/subscriptions',
+                    domain: '.youtube.com',
+                    logo: 'Y',
+                    authCookies: ['SAPISID', 'SSID', 'LOGIN_INFO', 'SID'],
+                    sessionCookies: ['VISITOR_INFO1_LIVE', 'YSC', 'PREF'],
+                    trackingCookies: ['_ga', '_gid', 'GPS', 'CONSENT'],
+                    securityFeatures: ['secure', 'httpOnly']
+                },
+                {
+                    name: 'Disney+',
+                    url: 'https://www.disneyplus.com/home',
+                    domain: '.disneyplus.com',
+                    logo: 'D',
+                    authCookies: ['access_token', 'refresh_token', 'session_id'],
+                    sessionCookies: ['device_id', 'profile_id', 'language'],
+                    trackingCookies: ['_ga', '_gid', 'adobe_analytics'],
+                    securityFeatures: ['secure', 'httpOnly', 'sameSite']
+                }
+            ],
+            social: [
+                {
+                    name: 'Facebook',
+                    url: 'https://www.facebook.com/feed',
+                    domain: '.facebook.com',
+                    logo: 'F',
+                    authCookies: ['c_user', 'xs', 'sb', 'datr'],
+                    sessionCookies: ['locale', 'wd', 'presence'],
+                    trackingCookies: ['_fbp', '_fbc', 'fr', 'tr'],
+                    securityFeatures: ['secure', 'httpOnly']
+                },
+                {
+                    name: 'Twitter',
+                    url: 'https://twitter.com/home',
+                    domain: '.twitter.com',
+                    logo: 'T',
+                    authCookies: ['auth_token', 'ct0', 'twid'],
+                    sessionCookies: ['lang', 'eu_cn', 'personalization_id'],
+                    trackingCookies: ['_ga', '_gid', '_twitter_sess'],
+                    securityFeatures: ['secure', 'sameSite']
+                },
+                {
+                    name: 'Instagram',
+                    url: 'https://www.instagram.com/',
+                    domain: '.instagram.com',
+                    logo: 'I',
+                    authCookies: ['sessionid', 'csrftoken', 'ds_user_id'],
+                    sessionCookies: ['ig_did', 'mid', 'shbid'],
+                    trackingCookies: ['_ga', '_gid', 'fbm_', 'fbsr_'],
+                    securityFeatures: ['secure', 'httpOnly']
+                }
+            ],
+            ecommerce: [
+                {
+                    name: 'Amazon',
+                    url: 'https://www.amazon.com/gp/yourstore',
+                    domain: '.amazon.com',
+                    logo: 'A',
+                    authCookies: ['session-id', 'session-token', 'x-acb'],
+                    sessionCookies: ['ubid-main', 'lc-main', 'skin'],
+                    trackingCookies: ['_ga', '_gid', 'ad-id', 'ad-privacy'],
+                    securityFeatures: ['secure', 'httpOnly']
+                },
+                {
+                    name: 'eBay',
+                    url: 'https://www.ebay.com/mys/summary',
+                    domain: '.ebay.com',
+                    logo: 'E',
+                    authCookies: ['nonsession', 'dp1', 'ebay'],
+                    sessionCookies: ['s', 'ns1', 'ak_bmsc'],
+                    trackingCookies: ['_ga', '_gid', '_gcl_au'],
+                    securityFeatures: ['secure']
+                }
+            ],
+            productivity: [
+                {
+                    name: 'Google Workspace',
+                    url: 'https://workspace.google.com/dashboard',
+                    domain: '.google.com',
+                    logo: 'G',
+                    authCookies: ['SAPISID', 'SSID', 'HSID', 'SID'],
+                    sessionCookies: ['APISID', 'NID', 'CONSENT'],
+                    trackingCookies: ['_ga', '_gid', '1P_JAR'],
+                    securityFeatures: ['secure', 'httpOnly', 'sameSite']
+                },
+                {
+                    name: 'Microsoft 365',
+                    url: 'https://www.office.com/',
+                    domain: '.office.com',
+                    logo: 'M',
+                    authCookies: ['ESTSAUTH', 'ESTSAUTHPERSISTENT', 'SignInStateCookie'],
+                    sessionCookies: ['MSFPC', 'ai_session', 'ai_user'],
+                    trackingCookies: ['_ga', '_gid', 'MUID'],
+                    securityFeatures: ['secure', 'httpOnly']
+                }
+            ],
+            gaming: [
+                {
+                    name: 'Steam',
+                    url: 'https://store.steampowered.com/',
+                    domain: '.steampowered.com',
+                    logo: 'S',
+                    authCookies: ['steamLoginSecure', 'sessionid', 'steamMachineAuth'],
+                    sessionCookies: ['steamCountry', 'Steam_Language', 'birthtime'],
+                    trackingCookies: ['_ga', '_gid', 'steamstore_analytics'],
+                    securityFeatures: ['secure', 'httpOnly']
+                }
+            ],
+            news: [
+                {
+                    name: 'BBC News',
+                    url: 'https://www.bbc.com/news',
+                    domain: '.bbc.com',
+                    logo: 'B',
+                    authCookies: ['IDENTITY', 'ACCOUNT_SUBSCRIBER'],
+                    sessionCookies: ['ckns_policy', 'ckns_explicit', 'ckns_privacy'],
+                    trackingCookies: ['_ga', '_gid', 'AT_atwrelaunch'],
+                    securityFeatures: ['secure']
+                }
+            ]
+        };
+
+        let generatedData = null;
+        let selectedWebsite = null;
+
+        function showWebsiteGallery() {
+            const gallery = document.getElementById('website-gallery');
+            gallery.innerHTML = '';
+
+            const websiteType = document.getElementById('website-type').value;
+            const websites = websiteType === 'all' ? 
+                Object.values(websiteDatabase).flat() : 
+                websiteDatabase[websiteType] || [];
+
+            websites.forEach(website => {
+                const card = document.createElement('div');
+                card.className = 'website-card';
+                card.onclick = () => selectWebsite(website);
+                
+                const cookieCount = website.authCookies.length + website.sessionCookies.length + 
+                    (document.getElementById('include-tracking').checked ? website.trackingCookies.length : 0);
+                
+                const estimatedSize = estimateDataSize(website);
+
+                card.innerHTML = `
+                    <div>
+                        <span class="website-logo">${website.logo}</span>
+                        <strong>${website.name}</strong>
+                        <span class="cookie-count">${cookieCount} cookies</span>
+                        <span class="data-size">${estimatedSize} KB</span>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 12px; color: #6c757d;">
+                        ${website.domain}
+                    </div>
+                `;
+
+                gallery.appendChild(card);
+            });
+        }
+
+        function selectWebsite(website) {
+            selectedWebsite = website;
+            
+            // Highlight selected website
+            document.querySelectorAll('.website-card').forEach(card => {
+                card.style.border = '2px solid transparent';
+            });
+            event.target.closest('.website-card').style.border = '2px solid #007bff';
+        }
+
+        function estimateDataSize(website) {
+            const avgCookieSize = 100; // bytes
+            const totalCookies = website.authCookies.length + website.sessionCookies.length + website.trackingCookies.length;
+            return ((totalCookies * avgCookieSize + 500) / 1024).toFixed(1); // KB
+        }
+
+        function generateSingleSession() {
+            const websiteType = document.getElementById('website-type').value;
+            const cookieCount = document.getElementById('cookie-count').value;
+            const sessionType = document.getElementById('session-type').value;
+            const includeTracking = document.getElementById('include-tracking').checked;
+
+            let website;
+            if (selectedWebsite) {
+                website = selectedWebsite;
+            } else {
+                const websites = websiteType === 'all' ? 
+                    Object.values(websiteDatabase).flat() : 
+                    websiteDatabase[websiteType] || [];
+                website = websites[Math.floor(Math.random() * websites.length)];
+            }
+
+            if (!website) {
+                alert('No website selected or available for the chosen category');
+                return;
+            }
+
+            const sessionData = generateSessionData(website, cookieCount, sessionType, includeTracking);
+            generatedData = sessionData;
+
+            displaySessionData(sessionData);
+        }
+
+        function generateSessionData(website, cookieCount, sessionType, includeTracking) {
+            const cookies = [];
+            
+            // Add authentication cookies
+            website.authCookies.forEach(cookieName => {
+                cookies.push(generateCookie(cookieName, website.domain, 'auth', sessionType));
+            });
+
+            // Add session cookies
+            website.sessionCookies.forEach(cookieName => {
+                cookies.push(generateCookie(cookieName, website.domain, 'session', sessionType));
+            });
+
+            // Add tracking cookies if enabled
+            if (includeTracking) {
+                website.trackingCookies.forEach(cookieName => {
+                    cookies.push(generateCookie(cookieName, website.domain, 'tracking', sessionType));
+                });
+            }
+
+            // Add additional cookies based on count setting
+            const targetCount = getCookieTargetCount(cookieCount);
+            while (cookies.length < targetCount) {
+                const additionalCookie = generateRandomCookie(website.domain);
+                cookies.push(additionalCookie);
+            }
+
+            return {
+                url: website.url,
+                title: `${website.name} - ${getPageTitle(website.name, sessionType)}`,
+                domain: website.domain.replace('.', ''),
+                cookies: cookies,
+                timestamp: Date.now(),
+                sessionType: sessionType,
+                metadata: {
+                    userAgent: generateUserAgent(),
+                    screenResolution: '1920x1080',
+                    timezone: 'America/New_York',
+                    language: 'en-US'
+                }
+            };
+        }
+
+        function generateCookie(name, domain, type, sessionType) {
+            const cookie = {
+                name: name,
+                value: generateCookieValue(name, type, sessionType),
+                domain: domain,
+                path: '/',
+                secure: Math.random() > 0.3, // 70% secure
+                httpOnly: type === 'auth' ? Math.random() > 0.2 : false, // 80% httpOnly for auth
+                sameSite: Math.random() > 0.5 ? 'lax' : 'strict'
+            };
+
+            // Set expiration for persistent cookies
+            if (type !== 'session') {
+                cookie.expirationDate = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60); // 30 days
+            }
+
+            return cookie;
+        }
+
+        function generateCookieValue(name, type, sessionType) {
+            const patterns = {
+                auth: () => generateBase64String(32) + '.' + generateHexString(16),
+                session: () => generateAlphanumeric(24),
+                tracking: () => 'GA1.2.' + Date.now() + '.' + Math.floor(Math.random() * 1000000)
+            };
+
+            const baseValue = patterns[type] ? patterns[type]() : generateAlphanumeric(16);
+            
+            // Add session type indicators
+            if (sessionType === 'premium') {
+                return baseValue + '_premium';
+            } else if (sessionType === 'admin') {
+                return 'admin_' + baseValue;
+            }
+            
+            return baseValue;
+        }
+
+        function generateBase64String(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function generateHexString(length) {
+            const chars = '0123456789abcdef';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function generateAlphanumeric(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function generateRandomCookie(domain) {
+            const randomNames = ['pref', 'lang', 'theme', 'tz', 'uid', 'sid', 'vid', 'cid', 'tid', 'aid'];
+            const name = randomNames[Math.floor(Math.random() * randomNames.length)] + '_' + Math.floor(Math.random() * 1000);
+            
+            return generateCookie(name, domain, 'session', 'normal');
+        }
+
+        function getCookieTargetCount(cookieCount) {
+            const ranges = {
+                minimal: [5, 10],
+                normal: [10, 25],
+                heavy: [25, 50],
+                extreme: [50, 100]
+            };
+            
+            const range = ranges[cookieCount] || ranges.normal;
+            return Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+        }
+
+        function getPageTitle(websiteName, sessionType) {
+            const titles = {
+                Netflix: sessionType === 'premium' ? 'Premium Dashboard' : 'Browse',
+                YouTube: 'Subscriptions',
+                'Disney+': 'Home',
+                Facebook: 'News Feed',
+                Twitter: 'Home Timeline',
+                Instagram: 'Feed',
+                Amazon: sessionType === 'premium' ? 'Prime Dashboard' : 'Your Account',
+                eBay: 'My eBay',
+                'Google Workspace': 'Dashboard',
+                'Microsoft 365': 'Office Home',
+                Steam: 'Store',
+                'BBC News': 'Home'
+            };
+            
+            return titles[websiteName] || 'Dashboard';
+        }
+
+        function generateUserAgent() {
+            const userAgents = [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15'
+            ];
+            
+            return userAgents[Math.floor(Math.random() * userAgents.length)];
+        }
+
+        function displaySessionData(sessionData) {
+            const preview = document.getElementById('session-data-preview');
+            preview.innerHTML = `<pre>${JSON.stringify(sessionData, null, 2)}</pre>`;
+        }
+
+        function generateMultipleSessions() {
+            const sessions = [];
+            const count = 5;
+            
+            for (let i = 0; i < count; i++) {
+                const websites = Object.values(websiteDatabase).flat();
+                const website = websites[Math.floor(Math.random() * websites.length)];
+                const sessionData = generateSessionData(website, 'normal', 'authenticated', true);
+                sessions.push(sessionData);
+            }
+            
+            generatedData = sessions;
+            
+            const preview = document.getElementById('session-data-preview');
+            preview.innerHTML = `<pre>${JSON.stringify(sessions, null, 2)}</pre>`;
+        }
+
+        function generateStressTestData() {
+            const stressData = [];
+            const count = 100;
+            
+            for (let i = 0; i < count; i++) {
+                const websites = Object.values(websiteDatabase).flat();
+                const website = websites[Math.floor(Math.random() * websites.length)];
+                const cookieCount = ['minimal', 'normal', 'heavy'][Math.floor(Math.random() * 3)];
+                const sessionType = ['authenticated', 'guest', 'premium'][Math.floor(Math.random() * 3)];
+                
+                const sessionData = generateSessionData(website, cookieCount, sessionType, Math.random() > 0.5);
+                stressData.push(sessionData);
+            }
+            
+            generatedData = stressData;
+            
+            const preview = document.getElementById('session-data-preview');
+            preview.innerHTML = `<p><strong>Generated ${count} stress test sessions</strong></p><pre>${JSON.stringify(stressData.slice(0, 3), null, 2)}</pre><p>... and ${count - 3} more sessions</p>`;
+        }
+
+        function generateEdgeCases() {
+            const edgeCases = [
+                // Empty session
+                {
+                    url: 'https://example.com',
+                    title: 'Empty Session',
+                    domain: 'example.com',
+                    cookies: [],
+                    timestamp: Date.now()
+                },
+                // Very long cookie values
+                {
+                    url: 'https://longcookies.com',
+                    title: 'Long Cookie Values',
+                    domain: 'longcookies.com',
+                    cookies: [{
+                        name: 'very_long_cookie',
+                        value: 'x'.repeat(4000), // 4KB cookie
+                        domain: '.longcookies.com',
+                        path: '/'
+                    }],
+                    timestamp: Date.now()
+                },
+                // Special characters in URLs
+                {
+                    url: 'https://special-chars.com/path?param=value&other=test',
+                    title: 'Special Characters & Symbols!',
+                    domain: 'special-chars.com',
+                    cookies: [{
+                        name: 'special_chars',
+                        value: 'value%20with%20encoding',
+                        domain: '.special-chars.com',
+                        path: '/'
+                    }],
+                    timestamp: Date.now()
+                },
+                // Expired cookies
+                {
+                    url: 'https://expired.com',
+                    title: 'Expired Cookies',
+                    domain: 'expired.com',
+                    cookies: [{
+                        name: 'expired_cookie',
+                        value: 'expired_value',
+                        domain: '.expired.com',
+                        path: '/',
+                        expirationDate: Math.floor(Date.now() / 1000) - 3600 // 1 hour ago
+                    }],
+                    timestamp: Date.now()
+                }
+            ];
+            
+            generatedData = edgeCases;
+            
+            const preview = document.getElementById('session-data-preview');
+            preview.innerHTML = `<pre>${JSON.stringify(edgeCases, null, 2)}</pre>`;
+        }
+
+        function generateFromWebsite() {
+            if (!selectedWebsite) {
+                alert('Please select a website from the gallery first');
+                return;
+            }
+            
+            generateSingleSession();
+        }
+
+        function copyToClipboard() {
+            if (!generatedData) {
+                alert('No data to copy. Generate some data first.');
+                return;
+            }
+            
+            const text = JSON.stringify(generatedData, null, 2);
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Data copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy data to clipboard');
+            });
+        }
+
+        function downloadAsJSON() {
+            if (!generatedData) {
+                alert('No data to download. Generate some data first.');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(generatedData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `secureshare-test-data-${Date.now()}.json`;
+            link.click();
+        }
+
+        function exportForTesting() {
+            if (!generatedData) {
+                alert('No data to export. Generate some data first.');
+                return;
+            }
+            
+            const testCode = generateTestCode(generatedData);
+            
+            const testBlob = new Blob([testCode], {type: 'text/javascript'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(testBlob);
+            link.download = `secureshare-test-${Date.now()}.js`;
+            link.click();
+        }
+
+        function generateTestCode(data) {
+            return `// Generated test data for SecureShare
+// Generated on: ${new Date().toISOString()}
+
+const testSessionData = ${JSON.stringify(data, null, 2)};
+
+// Test function example
+function testWithGeneratedData() {
+    if (Array.isArray(testSessionData)) {
+        testSessionData.forEach((session, index) => {
+            console.log(\`Testing session \${index + 1}: \${session.title}\`);
+            // Add your test logic here
+        });
+    } else {
+        console.log(\`Testing single session: \${testSessionData.title}\`);
+        // Add your test logic here
+    }
+}
+
+// Export for use in other test files
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = testSessionData;
+}
+
+// Make available globally for browser testing
+if (typeof window !== 'undefined') {
+    window.testSessionData = testSessionData;
+}
+`;
+        }
+
+        function generateTestSuite() {
+            const testSuite = {
+                streaming: [],
+                social: [],
+                ecommerce: [],
+                productivity: [],
+                gaming: [],
+                news: []
+            };
+            
+            Object.keys(websiteDatabase).forEach(category => {
+                websiteDatabase[category].forEach(website => {
+                    const sessionData = generateSessionData(website, 'normal', 'authenticated', true);
+                    testSuite[category].push(sessionData);
+                });
+            });
+            
+            generatedData = testSuite;
+            
+            const batchResults = document.getElementById('batch-results');
+            batchResults.innerHTML = `
+                <h4>🚀 Test Suite Generated</h4>
+                <p><strong>Categories:</strong> ${Object.keys(testSuite).length}</p>
+                <p><strong>Total Sessions:</strong> ${Object.values(testSuite).flat().length}</p>
+                <div style="font-family: monospace; font-size: 12px;">
+                    ${Object.entries(testSuite).map(([category, sessions]) => 
+                        `${category}: ${sessions.length} sessions`
+                    ).join('<br>')}
+                </div>
+            `;
+        }
+
+        function generatePerformanceData() {
+            const performanceData = {
+                small: [], // < 1KB
+                medium: [], // 1-10KB
+                large: [], // 10-50KB
+                xlarge: [] // > 50KB
+            };
+            
+            // Generate different sized datasets
+            for (let i = 0; i < 10; i++) {
+                const websites = Object.values(websiteDatabase).flat();
+                const website = websites[Math.floor(Math.random() * websites.length)];
+                
+                // Small sessions
+                performanceData.small.push(generateSessionData(website, 'minimal', 'guest', false));
+                
+                // Medium sessions
+                performanceData.medium.push(generateSessionData(website, 'normal', 'authenticated', true));
+                
+                // Large sessions
+                performanceData.large.push(generateSessionData(website, 'heavy', 'premium', true));
+                
+                // Extra large sessions
+                const xlargeSession = generateSessionData(website, 'extreme', 'admin', true);
+                // Add extra metadata to make it larger
+                xlargeSession.metadata.extraData = 'x'.repeat(10000); // 10KB extra
+                performanceData.xlarge.push(xlargeSession);
+            }
+            
+            generatedData = performanceData;
+            
+            const batchResults = document.getElementById('batch-results');
+            batchResults.innerHTML = `
+                <h4>⚡ Performance Data Generated</h4>
+                <p><strong>Small Sessions:</strong> ${performanceData.small.length} (< 1KB each)</p>
+                <p><strong>Medium Sessions:</strong> ${performanceData.medium.length} (1-10KB each)</p>
+                <p><strong>Large Sessions:</strong> ${performanceData.large.length} (10-50KB each)</p>
+                <p><strong>XLarge Sessions:</strong> ${performanceData.xlarge.length} (> 50KB each)</p>
+            `;
+        }
+
+        function generateSecurityTestData() {
+            const securityData = {
+                maliciousInputs: [
+                    {
+                        url: 'https://test.com',
+                        title: '<script>alert("xss")</script>',
+                        domain: 'test.com',
+                        cookies: [{
+                            name: 'xss_test',
+                            value: '<script>alert("cookie_xss")</script>',
+                            domain: '.test.com'
+                        }],
+                        timestamp: Date.now()
+                    },
+                    {
+                        url: 'javascript:alert("malicious")',
+                        title: 'Malicious URL Test',
+                        domain: 'malicious.com',
+                        cookies: [],
+                        timestamp: Date.now()
+                    }
+                ],
+                oversizedData: [
+                    {
+                        url: 'https://oversize.com',
+                        title: 'Oversized Data Test',
+                        domain: 'oversize.com',
+                        cookies: Array(1000).fill(0).map((_, i) => ({
+                            name: `cookie_${i}`,
+                            value: 'x'.repeat(1000), // 1KB per cookie
+                            domain: '.oversize.com'
+                        })),
+                        timestamp: Date.now()
+                    }
+                ],
+                invalidFormats: [
+                    null,
+                    undefined,
+                    {},
+                    [],
+                    'not an object',
+                    { url: null, title: null, cookies: 'not an array' }
+                ]
+            };
+            
+            generatedData = securityData;
+            
+            const batchResults = document.getElementById('batch-results');
+            batchResults.innerHTML = `
+                <h4>🔒 Security Test Data Generated</h4>
+                <p><strong>Malicious Inputs:</strong> ${securityData.maliciousInputs.length}</p>
+                <p><strong>Oversized Data:</strong> ${securityData.oversizedData.length}</p>
+                <p><strong>Invalid Formats:</strong> ${securityData.invalidFormats.length}</p>
+                <p><em>Use this data to test input validation and security measures</em></p>
+            `;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            showWebsiteGallery();
+        });
+    </script>
+</body>
+</html>

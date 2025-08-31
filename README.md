@@ -6,7 +6,7 @@
 
 ### 🔐 Share Your Accounts Without Sharing Your Passwords
 
-  [![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)](https://github.com/mrx-arafat/SecureShare/releases)
+  [![Version](https://img.shields.io/badge/version-1.3.0-blue?style=flat-square)](https://github.com/mrx-arafat/SecureShare/releases)
   [![Manifest](https://img.shields.io/badge/manifest-v3-green?style=flat-square)](https://github.com/mrx-arafat/SecureShare/blob/main/manifest.json)
   [![License](https://img.shields.io/badge/license-MIT-purple?style=flat-square)](https://github.com/mrx-arafat/SecureShare/blob/main/LICENSE)
   [![Chrome](https://img.shields.io/badge/platform-Chrome-orange?style=flat-square&logo=google-chrome&logoColor=white)](https://www.google.com/chrome/)
@@ -28,21 +28,23 @@ SecureShare is a revolutionary Chrome extension that solves a common problem: sh
 ### ✨ Key Features
 
 - 🔒 **Zero Password Exposure** - Share accounts without revealing credentials
-- ⏱️ **Time-Limited Access** - Set automatic expiration for shared sessions
-- 🔐 **End-to-End Encryption** - Military-grade EC-ElGamal cryptography
-- 📱 **Universal Compatibility** - Works with any website or web application
-- 🚀 **One-Click Sharing** - Simple, intuitive interface
-- 📊 **Share History** - Track and manage all your shared sessions
-- 🛡️ **Privacy-First** - No external servers, no data collection
-- 🔄 **Instant Revocation** - Cancel access anytime
+- 📱 **Mobile Session Sharing** - Generate QR codes to instantly share sessions to mobile devices
+- ⏱️ **Time-Limited Access** - Automatic 30-minute expiration for all shared sessions
+- 🔐 **Military-Grade Encryption** - AES-256-GCM encryption with secure key exchange
+- 🌐 **Universal Compatibility** - Works with any website or web application
+- 🚀 **One-Click Sharing** - Simple, intuitive interface with guided onboarding
+- 📊 **Analytics & Monitoring** - Privacy-respecting usage analytics and system health monitoring
+- 🛡️ **Privacy-First** - Secure server infrastructure with one-time use semantics
+- 🔄 **Instant Revocation** - Sessions automatically expire and can be cancelled anytime
 
 ### 💡 Use Cases
 
 - **👨‍👩‍👧‍👦 Family Sharing** - Share streaming services with family members
 - **👥 Team Collaboration** - Provide temporary access to work accounts
 - **🆘 Remote Support** - Help others access their accounts securely
-- **📱 Device Switching** - Transfer sessions between your devices
+- **📱 Mobile Access** - Instantly transfer desktop sessions to mobile devices via QR codes
 - **🎮 Gaming Accounts** - Share game accounts without password risks
+- **💼 Cross-Device Work** - Seamlessly continue work sessions on different devices
 
 ---
 

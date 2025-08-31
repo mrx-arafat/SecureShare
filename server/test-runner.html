@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Storage API Test Runner</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .server-status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .server-online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .server-offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .config-section {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Session Storage API Test Runner</h1>
+    <p>Manual testing interface for the SecureShare Session Storage API</p>
+
+    <div class="test-container">
+        <h2>Server Configuration</h2>
+        <div class="config-section">
+            <label>API Base URL:</label>
+            <input type="text" id="apiBaseUrl" value="http://localhost:3001" placeholder="http://localhost:3001">
+            <button onclick="checkServerStatus()">🔍 Check Server Status</button>
+            <div id="serverStatus" class="server-status server-offline">Server status unknown</div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Controls</h2>
+        <button onclick="runAllTests()">🚀 Run All Tests</button>
+        <button onclick="testSessionStorage()">💾 Test Session Storage</button>
+        <button onclick="testSessionRetrieval()">📥 Test Session Retrieval</button>
+        <button onclick="testExpiration()">⏰ Test Expiration</button>
+        <button onclick="testErrorHandling()">❌ Test Error Handling</button>
+        <button onclick="clearResults()">🧹 Clear Results</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        let testResults = [];
+        let testCount = 0;
+        let passCount = 0;
+        let currentSessionId = null;
+        let currentEncryptionKey = null;
+
+        function getApiBaseUrl() {
+            return document.getElementById('apiBaseUrl').value || 'http://localhost:3001';
+        }
+
+        function addTestResult(name, passed, message, details = null) {
+            testCount++;
+            if (passed) passCount++;
+            
+            testResults.push({
+                name,
+                passed,
+                message,
+                details,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            updateTestDisplay();
+        }
+
+        function updateTestDisplay() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = '';
+            
+            // Add summary
+            const summary = document.createElement('div');
+            summary.className = 'test-result test-info';
+            summary.textContent = `Tests: ${testCount} | Passed: ${passCount} | Failed: ${testCount - passCount}`;
+            container.appendChild(summary);
+            
+            // Add individual results
+            testResults.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `test-result ${result.passed ? 'test-pass' : 'test-fail'}`;
+                
+                let content = `[${result.timestamp}] ${result.passed ? '✅' : '❌'} ${result.name}: ${result.message}`;
+                if (result.details) {
+                    content += `\nDetails: ${JSON.stringify(result.details, null, 2)}`;
+                }
+                
+                div.textContent = content;
+                container.appendChild(div);
+            });
+        }
+
+        function clearResults() {
+            testResults = [];
+            testCount = 0;
+            passCount = 0;
+            updateTestDisplay();
+        }
+
+        async function checkServerStatus() {
+            const statusDiv = document.getElementById('serverStatus');
+            const baseUrl = getApiBaseUrl();
+            
+            try {
+                const response = await fetch(`${baseUrl}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'server-status server-online';
+                    statusDiv.textContent = `✅ Server Online - ${data.activeSessions} active sessions, uptime: ${Math.floor(data.uptime)}s`;
+                } else {
+                    statusDiv.className = 'server-status server-offline';
+                    statusDiv.textContent = `❌ Server Error - Status: ${response.status}`;
+                }
+            } catch (error) {
+                statusDiv.className = 'server-status server-offline';
+                statusDiv.textContent = `❌ Server Offline - ${error.message}`;
+            }
+        }
+
+        function generateTestSessionData() {
+            return {
+                url: 'https://netflix.com/browse',
+                title: 'Netflix - Home',
+                domain: 'netflix.com',
+                cookies: [
+                    {
+                        name: 'NetflixId',
+                        value: 'v%3D2%26mac%3DAQEAEAABAAhQKKAqEC',
+                        domain: '.netflix.com',
+                        path: '/',
+                        secure: true,
+                        httpOnly: true
+                    },
+                    {
+                        name: 'session_token',
+                        value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+                        domain: 'netflix.com',
+                        path: '/',
+                        secure: true,
+                        httpOnly: false
+                    }
+                ],
+                timestamp: Date.now()
+            };
+        }
+
+        function generateEncryptionKey() {
+            // Generate 32 random bytes as hex string
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function testSessionStorage() {
+            const baseUrl = getApiBaseUrl();
+            const sessionData = generateTestSessionData();
+            const encryptionKey = generateEncryptionKey();
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/sessions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sessionData,
+                        encryptionKey,
+                        ttl: 1800
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentSessionId = data.sessionId;
+                    currentEncryptionKey = encryptionKey;
+                    addTestResult('Session Storage', true, 'Session stored successfully', {
+                        sessionId: data.sessionId,
+                        expiresAt: new Date(data.expiresAt).toLocaleString()
+                    });
+                } else {
+                    addTestResult('Session Storage', false, `Storage failed: ${data.error}`);
+                }
+            } catch (error) {
+                addTestResult('Session Storage', false, `Network error: ${error.message}`);
+            }
+        }
+
+        async function testSessionRetrieval() {
+            if (!currentSessionId || !currentEncryptionKey) {
+                addTestResult('Session Retrieval', false, 'No session available. Run storage test first.');
+                return;
+            }
+            
+            const baseUrl = getApiBaseUrl();
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/sessions/${currentSessionId}?key=${currentEncryptionKey}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addTestResult('Session Retrieval', true, 'Session retrieved and decrypted successfully', {
+                        url: data.sessionData.url,
+                        cookieCount: data.sessionData.cookies.length,
+                        accessCount: data.metadata.accessCount
+                    });
+                    
+                    // Clear current session (one-time use)
+                    currentSessionId = null;
+                    currentEncryptionKey = null;
+                } else {
+                    addTestResult('Session Retrieval', false, `Retrieval failed: ${data.error}`);
+                }
+            } catch (error) {
+                addTestResult('Session Retrieval', false, `Network error: ${error.message}`);
+            }
+        }
+
+        async function testExpiration() {
+            const baseUrl = getApiBaseUrl();
+            const sessionData = generateTestSessionData();
+            const encryptionKey = generateEncryptionKey();
+            
+            try {
+                // Create session with very short TTL
+                const storeResponse = await fetch(`${baseUrl}/api/sessions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sessionData,
+                        encryptionKey,
+                        ttl: 2 // 2 seconds
+                    })
+                });
+                
+                const storeData = await storeResponse.json();
+                
+                if (!storeResponse.ok) {
+                    addTestResult('Expiration Test', false, `Failed to create test session: ${storeData.error}`);
+                    return;
+                }
+                
+                const sessionId = storeData.sessionId;
+                
+                // Wait for expiration
+                addTestResult('Expiration Test', true, 'Waiting for session to expire (3 seconds)...');
+                
+                setTimeout(async () => {
+                    try {
+                        const retrieveResponse = await fetch(`${baseUrl}/api/sessions/${sessionId}?key=${encryptionKey}`);
+                        
+                        if (retrieveResponse.status === 410) {
+                            addTestResult('Expiration Test', true, 'Session correctly expired after TTL');
+                        } else {
+                            addTestResult('Expiration Test', false, `Expected 410, got ${retrieveResponse.status}`);
+                        }
+                    } catch (error) {
+                        addTestResult('Expiration Test', false, `Error testing expiration: ${error.message}`);
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                addTestResult('Expiration Test', false, `Network error: ${error.message}`);
+            }
+        }
+
+        async function testErrorHandling() {
+            const baseUrl = getApiBaseUrl();
+            
+            // Test missing session data
+            try {
+                const response = await fetch(`${baseUrl}/api/sessions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        encryptionKey: generateEncryptionKey()
+                    })
+                });
+                
+                if (response.status === 400) {
+                    addTestResult('Error Handling - Missing Data', true, 'Correctly rejected missing session data');
+                } else {
+                    addTestResult('Error Handling - Missing Data', false, `Expected 400, got ${response.status}`);
+                }
+            } catch (error) {
+                addTestResult('Error Handling - Missing Data', false, `Network error: ${error.message}`);
+            }
+            
+            // Test invalid session ID
+            try {
+                const response = await fetch(`${baseUrl}/api/sessions/invalid-id?key=${generateEncryptionKey()}`);
+                
+                if (response.status === 410) {
+                    addTestResult('Error Handling - Invalid ID', true, 'Correctly rejected invalid session ID');
+                } else {
+                    addTestResult('Error Handling - Invalid ID', false, `Expected 410, got ${response.status}`);
+                }
+            } catch (error) {
+                addTestResult('Error Handling - Invalid ID', false, `Network error: ${error.message}`);
+            }
+        }
+
+        async function runAllTests() {
+            clearResults();
+            addTestResult('Test Suite', true, 'Starting comprehensive API test suite...');
+            
+            await checkServerStatus();
+            await testSessionStorage();
+            
+            // Wait a bit before retrieval test
+            setTimeout(async () => {
+                await testSessionRetrieval();
+                await testExpiration();
+                await testErrorHandling();
+                
+                addTestResult('Test Suite', true, 'All tests completed!');
+            }, 1000);
+        }
+
+        // Initialize
+        updateTestDisplay();
+        checkServerStatus();
+    </script>
+</body>
+</html>

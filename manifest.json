@@ -3,7 +3,7 @@
   "name": "Secure Share",
   "description": "Share your current account with others without revealing your password, securely.",
   "short_name": "Secure Share",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "icons": {
     "16": "icons/16.png",
     "19": "icons/19.png",
@@ -22,13 +22,16 @@
   "permissions": [
     "tabs",
     "storage",
-    "cookies"
+    "cookies",
+    "notifications"
   ],
   "host_permissions": [
     "http://*/*",
-    "https://*/*"
+    "https://*/*",
+    "http://localhost:3001/*",
+    "http://localhost:6969/*"
   ],
   "content_security_policy": {
-    "extension_pages": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://api.qrserver.com;"
+    "extension_pages": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://api.qrserver.com; connect-src 'self' http://localhost:3001 http://localhost:6969;"
   }
 }

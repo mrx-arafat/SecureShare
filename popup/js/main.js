@@ -1,4 +1,4 @@
-/* globals log, configuration, Clipboard, shareText, cryptography, cookieManager, _t */
+/* globals log, configuration, Clipboard, shareText, cryptography, cookieManager, _t, analytics, alertSystem */
 
 (function() {
   'use strict'
@@ -183,6 +183,19 @@
         return;
       }
 
+      // Initialize session detection and preview
+      this.initializeSessionPreview();
+
+      // Refresh session button
+      addEventListener('#js-refresh-session', 'click', async function(event) {
+        try {
+          console.log('🔄 Refresh session button clicked');
+          await events.initializeSessionPreview();
+        } catch (error) {
+          console.error('❌ Session refresh failed:', error);
+        }
+      });
+
       // Generate QR code button
       addEventListener('#js-generate-qr-share', 'click', async function(event) {
         try {
@@ -227,6 +240,11 @@
                     show('js-qr-loading')
                     hide('js-qr-result')
 
+                    // Track QR generation start
+                    if (window.analytics) {
+                      window.analytics.trackQRGenerationStart();
+                    }
+
                     try {
                       const loginUrl = await window.qrShareDirect.generateDirectLoginQR(sessionData, 'js-qr-canvas-share')
                       console.log('✅ Generated login URL:', loginUrl);
@@ -239,9 +257,21 @@
                       window.currentQRUrl = loginUrl
                       console.log('QR URL stored in window.currentQRUrl');
 
+                      // Track QR generation success
+                      if (window.analytics) {
+                        const domain = sessionData.url ? new URL(sessionData.url).hostname : null;
+                        window.analytics.trackQRGenerationSuccess(domain);
+                      }
+
                       log('QR code generated successfully')
                     } catch (qrError) {
                       console.error('❌ QR generation failed:', qrError);
+
+                      // Track QR generation failure
+                      if (window.analytics) {
+                        window.analytics.trackQRGenerationFailure('generation_error', qrError.message);
+                      }
+
                       throw qrError;
                     }
                   } else {
@@ -261,6 +291,17 @@
                 } catch (error) {
                   log('QR generation error:', error)
                   hide('js-qr-loading')
+
+                  // Track error with analytics
+                  if (window.analytics) {
+                    let errorType = 'unknown_error';
+                    if (error.message.includes('Cannot share browser internal pages')) {
+                      errorType = 'invalid_page';
+                    } else if (error.message.includes('QR Share module not loaded')) {
+                      errorType = 'module_not_loaded';
+                    }
+                    window.analytics.trackError('qr_generation', errorType, error.message);
+                  }
 
                   // Show user-friendly error messages
                   if (error.message.includes('Cannot share browser internal pages')) {
@@ -373,6 +414,285 @@
           showError('Failed to copy link: ' + error.message)
         }
       })
+
+      log('[Events] QR Share events attached successfully')
+    },
+
+    /**
+     * Initialize session preview and login detection
+     */
+    initializeSessionPreview: async function() {
+      try {
+        console.log('🔍 Initializing session preview...');
+
+        // Update status to show analysis in progress
+        const statusEl = document.getElementById('js-session-status');
+        if (statusEl) {
+          statusEl.innerHTML = `
+            <div class="status-item">
+              <span class="status-icon">🔍</span>
+              <span class="status-text">Analyzing session...</span>
+            </div>
+          `;
+        }
+
+        // Use enhanced login detection if available
+        if (window.LoginDetection) {
+          const loginInfo = await window.LoginDetection.detectLoginStatus();
+          const formatted = window.LoginDetection.formatLoginStatus(loginInfo);
+
+          // Update login status display
+          this.updateLoginStatus(formatted, loginInfo);
+
+          // Update session preview with enhanced information
+          this.updateEnhancedSessionPreview(loginInfo);
+
+          // Update main status
+          if (statusEl) {
+            statusEl.innerHTML = `
+              <div class="status-item">
+                <span class="status-icon">${formatted.statusIcon}</span>
+                <span class="status-text">Analysis complete</span>
+              </div>
+            `;
+          }
+        } else {
+          // Fallback to basic session analysis
+          await this.basicSessionAnalysis();
+        }
+
+      } catch (error) {
+        console.error('❌ Failed to initialize session preview:', error);
+        const statusEl = document.getElementById('js-session-status');
+        if (statusEl) {
+          statusEl.innerHTML = `
+            <div class="status-item">
+              <span class="status-icon">❌</span>
+              <span class="status-text">Failed to analyze session</span>
+            </div>
+          `;
+        }
+      }
+    },
+
+    /**
+     * Update login status display with enhanced information
+     * @param {Object} formatted - Formatted login status
+     * @param {Object} loginInfo - Raw login information
+     */
+    updateLoginStatus: function(formatted, loginInfo) {
+      const loginStatusEl = document.getElementById('js-login-status');
+      const loginIconEl = document.getElementById('js-login-icon');
+      const loginTextEl = document.getElementById('js-login-text');
+      const loginConfidenceEl = document.getElementById('js-login-confidence');
+      const userInfoEl = document.getElementById('js-user-info');
+      const userDisplayEl = document.getElementById('js-user-display');
+
+      if (loginStatusEl) {
+        loginStatusEl.style.display = 'block';
+        loginStatusEl.className = `login-status ${formatted.statusClass}`;
+      }
+
+      if (loginIconEl) loginIconEl.textContent = formatted.statusIcon;
+      if (loginTextEl) loginTextEl.textContent = formatted.statusText;
+      if (loginConfidenceEl) loginConfidenceEl.textContent = formatted.confidenceText;
+
+      // Show user info if available
+      if (userInfoEl && userDisplayEl) {
+        if (loginInfo.userInfo && formatted.userDisplay !== 'Not detected') {
+          userInfoEl.style.display = 'block';
+          userDisplayEl.textContent = formatted.userDisplay;
+        } else {
+          userInfoEl.style.display = 'none';
+        }
+      }
+    },
+
+    /**
+     * Update session preview with enhanced information
+     * @param {Object} loginInfo - Login information from detection
+     */
+    updateEnhancedSessionPreview: function(loginInfo) {
+      const previewEl = document.getElementById('js-session-preview');
+      const websiteEl = document.getElementById('js-preview-website');
+      const cookiesEl = document.getElementById('js-preview-cookies');
+      const securityEl = document.getElementById('js-preview-security');
+      const durationEl = document.getElementById('js-preview-duration');
+
+      if (previewEl) {
+        previewEl.style.display = 'block';
+      }
+
+      // Update website info
+      if (websiteEl && loginInfo.domain) {
+        const displayName = loginInfo.title || loginInfo.domain;
+        websiteEl.textContent = displayName.length > 30 ?
+          displayName.substring(0, 30) + '...' : displayName;
+      }
+
+      // Update cookie count with session-specific info
+      if (cookiesEl) {
+        const sessionCount = loginInfo.sessionCookies ? loginInfo.sessionCookies.length : 0;
+        cookiesEl.textContent = `${sessionCount} session cookies`;
+      }
+
+      // Update security level
+      if (securityEl) {
+        let securityLevel = 'Basic';
+        let securityIcon = '🔒';
+
+        if (loginInfo.confidence >= 80) {
+          securityLevel = 'High';
+          securityIcon = '🔐';
+        } else if (loginInfo.confidence >= 50) {
+          securityLevel = 'Medium';
+          securityIcon = '🔒';
+        } else {
+          securityLevel = 'Low';
+          securityIcon = '⚠️';
+        }
+
+        securityEl.innerHTML = `${securityIcon} ${securityLevel}`;
+      }
+
+      // Update duration (could be dynamic based on session type)
+      if (durationEl) {
+        durationEl.textContent = '30 minutes';
+      }
+    },
+
+    /**
+     * Fallback method for basic session analysis
+     */
+    basicSessionAnalysis: async function() {
+      return new Promise((resolve) => {
+        getCurrentTab((tab) => {
+          cookieManager.get(tab.url, (cookies) => {
+            const domain = this.extractDomain(tab.url);
+            const sessionInfo = {
+              domain: domain,
+              cookieCount: cookies.length,
+              hasAuthCookies: this.hasAuthenticationCookies(cookies),
+              isSecure: tab.url.startsWith('https://'),
+              title: tab.title
+            };
+
+            // Update basic preview
+            this.updateSessionPreview(tab, cookies, {
+              status: sessionInfo.hasAuthCookies ? 'logged_in' : 'unknown',
+              message: sessionInfo.hasAuthCookies ? 'Session ready to share' : 'Limited session detected',
+              cookieCount: cookies.length
+            });
+
+            resolve();
+          });
+        });
+      });
+    },
+
+    /**
+     * Extract domain from URL
+     * @param {string} url - URL to extract domain from
+     * @returns {string} Domain name
+     */
+    extractDomain: function(url) {
+      try {
+        const urlObj = new URL(url);
+        return urlObj.hostname.replace(/^www\./, '');
+      } catch (error) {
+        console.error('Invalid URL:', url);
+        return 'unknown';
+      }
+    },
+
+    /**
+     * Check if cookies contain authentication patterns
+     * @param {Array} cookies - Array of cookies
+     * @returns {boolean} True if auth cookies found
+     */
+    hasAuthenticationCookies: function(cookies) {
+      const authPatterns = [
+        /session/i, /auth/i, /login/i, /token/i, /user/i, /account/i
+      ];
+
+      return cookies.some(cookie =>
+        authPatterns.some(pattern =>
+          pattern.test(cookie.name) || pattern.test(cookie.value)
+        )
+      );
+    },
+
+    /**
+     * Update session status display
+     */
+    updateSessionStatus: function(loginStatus, tab) {
+      const statusEl = document.getElementById('js-session-status');
+      if (!statusEl) return;
+
+      let statusIcon = '❓';
+      let statusClass = 'status-unknown';
+      let statusText = loginStatus.message;
+
+      switch (loginStatus.status) {
+        case 'logged_in':
+          statusIcon = '✅';
+          statusClass = 'status-logged-in';
+          statusText = 'User appears to be logged in';
+          break;
+        case 'possibly_logged_in':
+          statusIcon = '🟡';
+          statusClass = 'status-maybe-logged-in';
+          statusText = 'User might be logged in';
+          break;
+        case 'not_logged_in':
+          statusIcon = '❌';
+          statusClass = 'status-not-logged-in';
+          statusText = 'No login detected - please log in first';
+          break;
+        case 'error':
+          statusIcon = '⚠️';
+          statusClass = 'status-error';
+          break;
+      }
+
+      statusEl.innerHTML = `
+        <div class="status-item ${statusClass}">
+          <span class="status-icon">${statusIcon}</span>
+          <span class="status-text">${statusText}</span>
+        </div>
+        <div class="status-details">
+          <span class="status-detail">${loginStatus.cookieCount} cookies found</span>
+        </div>
+      `;
+    },
+
+    /**
+     * Update session preview information
+     */
+    updateSessionPreview: function(tab, cookies, loginStatus) {
+      const previewEl = document.getElementById('js-session-preview');
+      const domainEl = document.getElementById('js-preview-domain');
+      const cookiesEl = document.getElementById('js-preview-cookies');
+
+      if (previewEl && loginStatus.status !== 'not_logged_in') {
+        previewEl.style.display = 'block';
+      }
+
+      if (domainEl) {
+        try {
+          const domain = new URL(tab.url).hostname;
+          domainEl.textContent = domain;
+        } catch (error) {
+          domainEl.textContent = 'Unknown';
+        }
+      }
+
+      if (cookiesEl) {
+        const essentialCount = window.sessionCapture ?
+          window.sessionCapture.filterEssentialCookies(cookies).length :
+          cookies.length;
+        cookiesEl.textContent = `${essentialCount} essential`;
+      }
     },
 
     attachClipboard: function() {
@@ -703,6 +1023,25 @@ document.body.removeChild(e);alert('✅ Copied!')
         if (name === 'qr-share') {
           console.log('🔧 Attaching QR share events for template:', name);
           events['attach-qr-share']();
+
+          // Initialize session preview after a short delay to ensure DOM is ready
+          setTimeout(() => {
+            events.initializeSessionPreview();
+          }, 100);
+
+          // Check feature compatibility and show onboarding if needed
+          setTimeout(async () => {
+            if (window.featureDetection) {
+              await window.featureDetection.checkWebsiteCompatibility(tab);
+
+              // Show onboarding for first-time users
+              if (window.onboardingSystem && window.onboardingSystem.shouldShowOnboarding()) {
+                setTimeout(() => {
+                  window.onboardingSystem.start();
+                }, 500);
+              }
+            }
+          }, 200);
         }
       })
     )

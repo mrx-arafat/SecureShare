@@ -34,7 +34,7 @@
           </button>
           <button class="btn btn-secondary" data-menu="qr-share">
             <span class="btn-icon">📱</span>
-            <span class="btn-text">QR Share to Mobile</span>
+            <span class="btn-text">Share Current Session</span>
           </button>
           <button class="btn btn-secondary" data-menu="history">
             <span class="btn-icon">📋</span>
@@ -43,7 +43,7 @@
         </div>
 
         <div class="menu-footer">
-          <div class="version-info">v1.2.1</div>
+          <div class="version-info">v1.3.0</div>
           <div class="privacy-note">🔒 All data encrypted locally</div>
         </div>
       </div>
@@ -171,22 +171,73 @@ Remember that the session might end at any time.' rows="10"></textarea>
           </div>
         </div>
 
-        <div class="title">📱 QR Share to Mobile</div>
-        <div class="explanation">Generate a QR code to instantly share your current session with mobile devices</div>
+        <div class="title">🔐 Share Current Session</div>
+        <div class="explanation">Generate a secure QR code to share your login session with mobile devices</div>
 
         <div class="qr-generation">
           <div class="current-session-info">
-            <div class="small">📄 Current session</div>
+            <div class="small">🌐 Current Website</div>
             <div class="session-details">
               <div class="session-title">{{=tab.title}}</div>
               <div class="session-url">{{=tab.url}}</div>
             </div>
+            <div class="session-status" id="js-session-status">
+              <div class="status-item">
+                <span class="status-icon">🔍</span>
+                <span class="status-text">Checking login status...</span>
+              </div>
+            </div>
+
+            <div class="login-status" id="js-login-status" style="display: none;">
+              <div class="small">👤 Login Status</div>
+              <div class="login-info">
+                <div class="login-indicator">
+                  <span class="login-icon" id="js-login-icon">❓</span>
+                  <span class="login-text" id="js-login-text">Unknown</span>
+                  <span class="login-confidence" id="js-login-confidence">0%</span>
+                </div>
+                <div class="user-info" id="js-user-info" style="display: none;">
+                  <div class="user-display">
+                    <span class="user-label">Logged in as:</span>
+                    <span class="user-value" id="js-user-display">Not detected</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="session-preview" id="js-session-preview" style="display: none;">
+              <div class="small">📊 Session Information</div>
+              <div class="preview-items">
+                <div class="preview-item">
+                  <span class="preview-label">🌐 Website:</span>
+                  <span class="preview-value" id="js-preview-website">-</span>
+                </div>
+                <div class="preview-item">
+                  <span class="preview-label">🍪 Session Cookies:</span>
+                  <span class="preview-value" id="js-preview-cookies">-</span>
+                </div>
+                <div class="preview-item">
+                  <span class="preview-label">🔒 Security Level:</span>
+                  <span class="preview-value" id="js-preview-security">-</span>
+                </div>
+                <div class="preview-item">
+                  <span class="preview-label">⏱️ Estimated Duration:</span>
+                  <span class="preview-value" id="js-preview-duration">30 minutes</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <button id="js-generate-qr-share" class="btn btn-primary">
-            <span class="btn-icon">🔄</span>
-            <span class="btn-text">Generate QR Code</span>
-          </button>
+          <div class="session-actions">
+            <button id="js-refresh-session" class="btn btn-secondary">
+              <span class="btn-icon">🔄</span>
+              <span class="btn-text">Refresh Session</span>
+            </button>
+            <button id="js-generate-qr-share" class="btn btn-primary">
+              <span class="btn-icon">📱</span>
+              <span class="btn-text">Share Current Session</span>
+            </button>
+          </div>
 
           <div id="js-qr-loading" class="qr-loading hidden">
             <div class="loading-spinner"></div>
@@ -214,20 +265,26 @@ Remember that the session might end at any time.' rows="10"></textarea>
               <div class="qr-steps">
                 <div class="qr-step">
                   <span class="step-number">1</span>
-                  <span class="step-text">Open camera app on your phone</span>
+                  <span class="step-text">Scan QR code with your mobile device</span>
                 </div>
                 <div class="qr-step">
                   <span class="step-number">2</span>
-                  <span class="step-text">Point camera at QR code</span>
+                  <span class="step-text">Tap the secure link notification</span>
                 </div>
                 <div class="qr-step">
                   <span class="step-number">3</span>
-                  <span class="step-text">Tap the notification to open link</span>
+                  <span class="step-text">Session applies automatically</span>
                 </div>
                 <div class="qr-step">
                   <span class="step-number">4</span>
-                  <span class="step-text">You'll be automatically logged in!</span>
+                  <span class="step-text">You're logged in - no password needed!</span>
                 </div>
+              </div>
+              <div class="qr-examples">
+                <div class="small">💡 Perfect for:</div>
+                <div class="example-text">• Share Netflix with friends</div>
+                <div class="example-text">• Access work accounts on mobile</div>
+                <div class="example-text">• Quick login without typing passwords</div>
               </div>
             </div>
 
@@ -310,6 +367,80 @@ Remember that the session might end at any time.' rows="10"></textarea>
     </template>
 
 
+    <!-- Chrome API Mocks for Browser Testing -->
+    <script>
+        // Mock Chrome APIs when running in browser (not extension context)
+        if (!window.chrome || !window.chrome.tabs) {
+            console.log('🔧 Initializing Chrome API mocks for browser testing...');
+
+            window.chrome = window.chrome || {};
+
+            // Mock tabs API
+            window.chrome.tabs = {
+                query: function(queryInfo, callback) {
+                    const mockTab = {
+                        id: 1,
+                        url: window.location.href.includes('github.com') ? 'https://github.com' : 'https://example.com',
+                        title: 'Test Page',
+                        active: true,
+                        windowId: 1
+                    };
+                    setTimeout(() => callback([mockTab]), 10);
+                },
+                create: function(createProperties) {
+                    console.log('Mock: Would create tab with URL:', createProperties.url);
+                    window.open(createProperties.url, '_blank');
+                }
+            };
+
+            // Mock cookies API
+            window.chrome.cookies = {
+                getAll: function(details, callback) {
+                    const mockCookies = [
+                        { name: 'session_id', value: 'mock_session_123', domain: '.example.com', secure: true, httpOnly: true, path: '/', expirationDate: Math.floor(Date.now() / 1000) + 3600 },
+                        { name: 'user_pref', value: 'mock_pref_456', domain: '.example.com', secure: true, httpOnly: false, path: '/', expirationDate: Math.floor(Date.now() / 1000) + 3600 },
+                        { name: 'csrf_token', value: 'mock_csrf_789', domain: '.example.com', secure: true, httpOnly: false, path: '/', expirationDate: Math.floor(Date.now() / 1000) + 3600 }
+                    ];
+                    console.log('Mock: Returning cookies for', details.url, mockCookies);
+                    setTimeout(() => callback(mockCookies), 10);
+                },
+                set: function(details, callback) {
+                    console.log('Mock: Would set cookie:', details);
+                    if (callback) setTimeout(() => callback(details), 10);
+                }
+            };
+
+            // Mock runtime API
+            window.chrome.runtime = {
+                lastError: null,
+                getManifest: function() {
+                    return { version: '1.3.0' };
+                }
+            };
+
+            // Mock storage API
+            window.chrome.storage = {
+                local: {
+                    get: function(keys, callback) {
+                        const mockData = {};
+                        if (typeof keys === 'string') {
+                            mockData[keys] = null;
+                        } else if (Array.isArray(keys)) {
+                            keys.forEach(key => mockData[key] = null);
+                        }
+                        setTimeout(() => callback(mockData), 10);
+                    },
+                    set: function(items, callback) {
+                        console.log('Mock: Would store:', items);
+                        if (callback) setTimeout(callback, 10);
+                    }
+                }
+            };
+
+            console.log('✅ Chrome API mocks initialized for browser testing');
+        }
+    </script>
+
     <!-- Vendor Libraries -->
     <script src="js/vendor/clipboard.min.js"></script>
     <script src="js/vendor/sjcl.min.js"></script>
@@ -326,20 +457,25 @@ Remember that the session might end at any time.' rows="10"></textarea>
     <!-- Feature Modules -->
     <script src="js/cryptography.js"></script>
     <script src="js/cookieManager.js"></script>
+    <script src="js/sessionCapture.js"></script>
     <script src="js/shareText.js"></script>
 
     <!-- Advanced QR Mobile Flow Modules -->
     <script src="js/base64url.js"></script>
     <script src="js/payloadManager.js"></script>
     <script src="js/mobileFlow.js"></script>
+    <script src="js/loginDetection.js"></script>
     <script src="js/qrShareDirect.js"></script>
 
     <!-- Main Application -->
     <script src="js/main.js"></script>
     <!-- <script src="js/app.js"></script> --> <!-- Modern alternative to main.js -->
 
-    <!-- Analytics (Privacy-respecting) -->
-    <script defer src="js/analytics.js"></script>
+    <!-- Analytics and Monitoring -->
+    <script src="js/analytics.js"></script>
+    <script src="js/alertSystem.js"></script>
+    <script src="js/featureDetection.js"></script>
+    <script src="js/onboarding.js"></script>
   </body>
 </html>
 

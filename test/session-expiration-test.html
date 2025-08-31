@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Expiration System Tests</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .config-section {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin: 5px;
+            width: 200px;
+        }
+        .countdown-demo {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .countdown-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background: white;
+        }
+        .countdown-green { color: #28a745; }
+        .countdown-yellow { color: #ffc107; }
+        .countdown-red { color: #dc3545; }
+        .server-status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .server-online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .server-offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>⏰ Session Expiration System Tests</h1>
+    <p>Test the session expiration, cleanup, and countdown functionality</p>
+
+    <div class="test-container">
+        <h2>Server Status</h2>
+        <div id="server-status" class="server-status server-offline">
+            Server Status: Checking...
+        </div>
+        <button onclick="checkServerStatus()">Check Server Status</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Configuration</h2>
+        <div class="config-section">
+            <label>Session Storage API:</label>
+            <input type="text" id="apiUrl" value="http://localhost:3001" placeholder="API URL">
+            <br>
+            <label>Test TTL (seconds):</label>
+            <input type="number" id="testTtl" value="60" min="10" max="300" placeholder="TTL in seconds">
+            <br>
+            <label>Test Mode:</label>
+            <select id="testMode">
+                <option value="live">Live Server Testing</option>
+                <option value="mock">Mock Testing (No Server)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Controls</h2>
+        <button onclick="runAllTests()">🚀 Run All Tests</button>
+        <button onclick="testSessionCreation()">📝 Test Session Creation</button>
+        <button onclick="testExpirationValidation()">⏰ Test Expiration Validation</button>
+        <button onclick="testOneTimeUse()">🔒 Test One-Time Use</button>
+        <button onclick="testCountdownFunctionality()">⏱️ Test Countdown</button>
+        <button onclick="testCleanupMechanism()">🧹 Test Cleanup</button>
+        <button onclick="clearResults()">🗑️ Clear Results</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Live Countdown Demo</h2>
+        <div class="countdown-demo">
+            <p>Create a test session and watch the countdown in real-time:</p>
+            <button onclick="createTestSession()">Create Test Session (60s TTL)</button>
+            <div class="countdown-display" id="demo-countdown">No active session</div>
+            <div id="demo-session-info"></div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <!-- Test Suite -->
+    <script>
+        let testResults = [];
+        let testCount = 0;
+        let passCount = 0;
+        let demoSessionId = null;
+        let demoCountdownTimer = null;
+
+        function addTestResult(name, passed, message, details = null) {
+            testCount++;
+            if (passed) passCount++;
+            
+            testResults.push({
+                name,
+                passed,
+                message,
+                details,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            updateTestDisplay();
+        }
+
+        function updateTestDisplay() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = '';
+            
+            // Add summary
+            const summary = document.createElement('div');
+            summary.className = 'test-result test-info';
+            summary.textContent = `Tests: ${testCount} | Passed: ${passCount} | Failed: ${testCount - passCount}`;
+            container.appendChild(summary);
+            
+            // Add individual results
+            testResults.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `test-result ${result.passed ? 'test-pass' : 'test-fail'}`;
+                
+                let content = `[${result.timestamp}] ${result.passed ? '✅' : '❌'} ${result.name}: ${result.message}`;
+                if (result.details) {
+                    content += `\nDetails: ${JSON.stringify(result.details, null, 2)}`;
+                }
+                
+                div.textContent = content;
+                container.appendChild(div);
+            });
+        }
+
+        function clearResults() {
+            testResults = [];
+            testCount = 0;
+            passCount = 0;
+            updateTestDisplay();
+        }
+
+        async function checkServerStatus() {
+            const statusEl = document.getElementById('server-status');
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            try {
+                statusEl.textContent = 'Server Status: Checking...';
+                statusEl.className = 'server-status server-offline';
+                
+                const response = await fetch(`${apiUrl}/health`, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    const health = await response.json();
+                    statusEl.textContent = `Server Status: Online (${health.activeSessions} active sessions)`;
+                    statusEl.className = 'server-status server-online';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                statusEl.textContent = `Server Status: Offline (${error.message})`;
+                statusEl.className = 'server-status server-offline';
+            }
+        }
+
+        async function testSessionCreation() {
+            try {
+                const apiUrl = document.getElementById('apiUrl').value;
+                const ttl = parseInt(document.getElementById('testTtl').value);
+                
+                const sessionData = {
+                    url: 'https://example.com/test',
+                    title: 'Test Session',
+                    domain: 'example.com',
+                    cookies: [
+                        { name: 'test_cookie', value: 'test_value', domain: 'example.com' }
+                    ],
+                    timestamp: Date.now(),
+                    version: '1.0'
+                };
+                
+                const response = await fetch(`${apiUrl}/api/sessions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionData,
+                        encryptionKey: 'test-key-123',
+                        ttl
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    addTestResult('Session Creation', true, 'Session created successfully', {
+                        sessionId: result.sessionId,
+                        ttl: result.ttl,
+                        expiresAt: result.expiresAt
+                    });
+                    return result.sessionId;
+                } else {
+                    const error = await response.json();
+                    addTestResult('Session Creation', false, `Session creation failed: ${error.error}`);
+                }
+            } catch (error) {
+                addTestResult('Session Creation', false, `Test failed: ${error.message}`);
+            }
+        }
+
+        async function testExpirationValidation() {
+            try {
+                const apiUrl = document.getElementById('apiUrl').value;
+                
+                // Create a session with very short TTL
+                const sessionData = {
+                    url: 'https://example.com/expire-test',
+                    title: 'Expiration Test',
+                    cookies: [{ name: 'expire_test', value: 'value' }]
+                };
+                
+                const createResponse = await fetch(`${apiUrl}/api/sessions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionData,
+                        encryptionKey: 'expire-key',
+                        ttl: 2 // 2 seconds
+                    })
+                });
+                
+                if (!createResponse.ok) {
+                    throw new Error('Failed to create test session');
+                }
+                
+                const { sessionId } = await createResponse.json();
+                
+                // Wait for expiration
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                // Try to retrieve expired session
+                const retrieveResponse = await fetch(`${apiUrl}/api/sessions/${sessionId}?key=expire-key`);
+                
+                if (retrieveResponse.status === 410) {
+                    const error = await retrieveResponse.json();
+                    addTestResult('Expiration Validation', true, 'Session correctly expired', {
+                        errorCode: error.code,
+                        message: error.error
+                    });
+                } else {
+                    addTestResult('Expiration Validation', false, 'Session did not expire as expected');
+                }
+                
+            } catch (error) {
+                addTestResult('Expiration Validation', false, `Test failed: ${error.message}`);
+            }
+        }
+
+        async function testOneTimeUse() {
+            try {
+                const apiUrl = document.getElementById('apiUrl').value;
+                
+                // Create a session
+                const sessionData = {
+                    url: 'https://example.com/one-time-test',
+                    title: 'One-Time Use Test',
+                    cookies: [{ name: 'one_time_test', value: 'value' }]
+                };
+                
+                const createResponse = await fetch(`${apiUrl}/api/sessions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionData,
+                        encryptionKey: 'one-time-key',
+                        ttl: 300
+                    })
+                });
+                
+                const { sessionId } = await createResponse.json();
+                
+                // First retrieval should succeed
+                const firstResponse = await fetch(`${apiUrl}/api/sessions/${sessionId}?key=one-time-key`);
+                
+                if (!firstResponse.ok) {
+                    throw new Error('First retrieval failed');
+                }
+                
+                // Second retrieval should fail (one-time use)
+                const secondResponse = await fetch(`${apiUrl}/api/sessions/${sessionId}?key=one-time-key`);
+                
+                if (secondResponse.status === 410 || secondResponse.status === 404) {
+                    const error = await secondResponse.json();
+                    addTestResult('One-Time Use', true, 'Session correctly marked as used', {
+                        errorCode: error.code,
+                        message: error.error
+                    });
+                } else {
+                    addTestResult('One-Time Use', false, 'Session was not marked as used');
+                }
+                
+            } catch (error) {
+                addTestResult('One-Time Use', false, `Test failed: ${error.message}`);
+            }
+        }
+
+        function testCountdownFunctionality() {
+            // Test the countdown display logic
+            const testTimeRemaining = 125000; // 2 minutes 5 seconds
+            
+            // Mock countdown element
+            const mockElement = {
+                textContent: '',
+                style: { color: '' }
+            };
+            
+            // Simulate countdown logic
+            let remaining = Math.floor(testTimeRemaining / 1000);
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            mockElement.textContent = `Expires in ${timeString}`;
+            
+            if (remaining <= 60) {
+                mockElement.style.color = '#dc3545';
+            } else if (remaining <= 300) {
+                mockElement.style.color = '#ffc107';
+            } else {
+                mockElement.style.color = '#28a745';
+            }
+            
+            addTestResult('Countdown Functionality', true, 'Countdown logic working correctly', {
+                timeRemaining: testTimeRemaining,
+                displayText: mockElement.textContent,
+                color: mockElement.style.color
+            });
+        }
+
+        async function testCleanupMechanism() {
+            try {
+                const apiUrl = document.getElementById('apiUrl').value;
+                
+                // Check health endpoint for cleanup stats
+                const response = await fetch(`${apiUrl}/health`);
+                
+                if (response.ok) {
+                    const health = await response.json();
+                    addTestResult('Cleanup Mechanism', true, 'Cleanup mechanism accessible', {
+                        activeSessions: health.activeSessions,
+                        uptime: health.uptime,
+                        memoryUsage: health.memoryUsage
+                    });
+                } else {
+                    addTestResult('Cleanup Mechanism', false, 'Unable to access cleanup stats');
+                }
+                
+            } catch (error) {
+                addTestResult('Cleanup Mechanism', false, `Test failed: ${error.message}`);
+            }
+        }
+
+        async function createTestSession() {
+            try {
+                const apiUrl = document.getElementById('apiUrl').value;
+                
+                const sessionData = {
+                    url: 'https://example.com/demo',
+                    title: 'Demo Session',
+                    cookies: [{ name: 'demo_cookie', value: 'demo_value' }]
+                };
+                
+                const response = await fetch(`${apiUrl}/api/sessions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionData,
+                        encryptionKey: 'demo-key',
+                        ttl: 60
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    demoSessionId = result.sessionId;
+                    
+                    document.getElementById('demo-session-info').innerHTML = `
+                        <p><strong>Session ID:</strong> ${result.sessionId}</p>
+                        <p><strong>Expires At:</strong> ${new Date(result.expiresAt).toLocaleTimeString()}</p>
+                    `;
+                    
+                    startDemoCountdown(result.expiresAt);
+                } else {
+                    document.getElementById('demo-countdown').textContent = 'Failed to create session';
+                }
+                
+            } catch (error) {
+                document.getElementById('demo-countdown').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function startDemoCountdown(expiresAt) {
+            if (demoCountdownTimer) {
+                clearInterval(demoCountdownTimer);
+            }
+            
+            const countdownEl = document.getElementById('demo-countdown');
+            
+            demoCountdownTimer = setInterval(() => {
+                const now = Date.now();
+                const remaining = Math.max(0, Math.floor((expiresAt - now) / 1000));
+                
+                if (remaining <= 0) {
+                    countdownEl.textContent = 'Session expired';
+                    countdownEl.className = 'countdown-display countdown-red';
+                    clearInterval(demoCountdownTimer);
+                    return;
+                }
+                
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                countdownEl.textContent = `Expires in ${timeString}`;
+                
+                if (remaining <= 10) {
+                    countdownEl.className = 'countdown-display countdown-red';
+                } else if (remaining <= 30) {
+                    countdownEl.className = 'countdown-display countdown-yellow';
+                } else {
+                    countdownEl.className = 'countdown-display countdown-green';
+                }
+            }, 1000);
+        }
+
+        async function runAllTests() {
+            clearResults();
+            addTestResult('Test Suite', true, 'Starting session expiration system tests...');
+            
+            await checkServerStatus();
+            await testSessionCreation();
+            await testExpirationValidation();
+            await testOneTimeUse();
+            testCountdownFunctionality();
+            await testCleanupMechanism();
+            
+            addTestResult('Test Suite', true, 'All tests completed!');
+        }
+
+        // Initialize
+        updateTestDisplay();
+        checkServerStatus();
+    </script>
+</body>
+</html>

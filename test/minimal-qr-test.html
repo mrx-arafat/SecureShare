@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal QR Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        button { background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 10px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; font-weight: bold; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .qr-container { text-align: center; margin: 20px 0; }
+        .qr-canvas { border: 2px solid #ddd; border-radius: 8px; margin: 10px; }
+        .log { background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Minimal QR Generation Test</h1>
+        
+        <div class="status info" id="status">Ready to test QR generation...</div>
+        
+        <button onclick="testDirectQR()" id="test-btn">Test QR Generation</button>
+        <button onclick="testAPIOnly()" id="api-btn">Test API Only</button>
+        <button onclick="clearResults()">Clear Results</button>
+        
+        <div class="qr-container">
+            <canvas id="qr-canvas" width="200" height="200" class="qr-canvas"></canvas>
+            <div id="qr-info">QR code will appear here...</div>
+        </div>
+        
+        <div class="log" id="log">Test log...\n</div>
+    </div>
+
+    <script src="../popup/js/vendor/qrious.min.js"></script>
+    
+    <script>
+        function log(message) {
+            const logEl = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.textContent += `[${timestamp}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const el = document.getElementById('status');
+            el.textContent = message;
+            el.className = `status ${type}`;
+        }
+
+        async function testAPIOnly() {
+            log('🧪 Testing Session Storage API only...');
+            updateStatus('Testing API connection...', 'info');
+
+            try {
+                // Test health check
+                const healthResponse = await fetch('http://localhost:3001/health');
+                if (!healthResponse.ok) {
+                    throw new Error(`Health check failed: ${healthResponse.status}`);
+                }
+                const healthData = await healthResponse.json();
+                log(`✅ API Health: ${healthData.status}, Active Sessions: ${healthData.activeSessions}`);
+
+                // Test session creation
+                const sessionData = {
+                    url: 'https://github.com',
+                    title: 'GitHub',
+                    domain: 'github.com',
+                    cookies: [
+                        { name: 'user_session', value: 'test_123', domain: '.github.com', secure: true }
+                    ]
+                };
+
+                const encryptionKey = generateRandomKey();
+                log(`🔑 Generated encryption key: ${encryptionKey.substring(0, 16)}...`);
+
+                const createResponse = await fetch('http://localhost:3001/api/sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionData: sessionData,
+                        encryptionKey: encryptionKey,
+                        ttl: 1800
+                    })
+                });
+
+                if (!createResponse.ok) {
+                    const errorData = await createResponse.json();
+                    throw new Error(`Session creation failed: ${errorData.error}`);
+                }
+
+                const createResult = await createResponse.json();
+                log(`✅ Session created: ${createResult.sessionId}`);
+
+                // Create secure link
+                const secureLink = `http://localhost:6969/s/${createResult.sessionId}?k=${encryptionKey}`;
+                log(`🔗 Secure link: ${secureLink}`);
+
+                updateStatus('✅ API test successful', 'success');
+                document.getElementById('qr-info').innerHTML = `
+                    <strong>API Test Result:</strong><br>
+                    Session ID: ${createResult.sessionId}<br>
+                    <a href="${secureLink}" target="_blank">Test Secure Link</a>
+                `;
+
+            } catch (error) {
+                log(`❌ API test failed: ${error.message}`);
+                updateStatus(`❌ API test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDirectQR() {
+            log('🚀 Testing direct QR generation...');
+            updateStatus('Generating QR code...', 'info');
+            
+            const button = document.getElementById('test-btn');
+            button.disabled = true;
+            button.textContent = '⏳ Generating...';
+
+            try {
+                // Step 1: Create session data
+                const sessionData = {
+                    url: 'https://github.com',
+                    title: 'GitHub',
+                    domain: 'github.com',
+                    cookies: [
+                        { name: 'user_session', value: 'test_session_123', domain: '.github.com', secure: true, httpOnly: true },
+                        { name: '_gh_sess', value: 'test_gh_session_456', domain: '.github.com', secure: true, httpOnly: false },
+                        { name: 'logged_in', value: 'yes', domain: '.github.com', secure: true, httpOnly: false }
+                    ],
+                    timestamp: Date.now()
+                };
+
+                log(`📊 Session data: ${sessionData.domain} (${sessionData.cookies.length} cookies)`);
+
+                // Step 2: Generate encryption key
+                const encryptionKey = generateRandomKey();
+                log(`🔑 Generated encryption key: ${encryptionKey.substring(0, 16)}...`);
+
+                // Step 3: Store session in API
+                log('💾 Storing session in API...');
+                const response = await fetch('http://localhost:3001/api/sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionData: sessionData,
+                        encryptionKey: encryptionKey,
+                        ttl: 1800
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API Error: ${errorData.error || response.statusText}`);
+                }
+
+                const result = await response.json();
+                log(`✅ Session stored: ${result.sessionId}`);
+
+                // Step 4: Create secure link
+                const secureLink = `http://localhost:6969/s/${result.sessionId}?k=${encryptionKey}`;
+                log(`🔗 Secure link created: ${secureLink}`);
+
+                // Step 5: Generate QR code
+                log('📱 Generating QR code...');
+                const canvas = document.getElementById('qr-canvas');
+                
+                if (typeof QRious === 'undefined') {
+                    throw new Error('QRious library not loaded');
+                }
+
+                const qr = new QRious({
+                    element: canvas,
+                    value: secureLink,
+                    size: 200,
+                    level: 'M',
+                    background: '#ffffff',
+                    foreground: '#000000'
+                });
+
+                log('✅ QR code generated successfully!');
+                updateStatus('✅ QR code generated successfully', 'success');
+
+                document.getElementById('qr-info').innerHTML = `
+                    <strong>QR Code Generated!</strong><br>
+                    <div style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0; font-size: 12px;">
+                        ${secureLink}
+                    </div>
+                    <button onclick="window.open('${secureLink}', '_blank')">Test Link</button>
+                    <button onclick="copyToClipboard('${secureLink}')">Copy Link</button>
+                `;
+
+            } catch (error) {
+                log(`❌ QR generation failed: ${error.message}`);
+                log(`❌ Error stack: ${error.stack}`);
+                updateStatus(`❌ Failed: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test QR Generation';
+            }
+        }
+
+        function generateRandomKey() {
+            if (window.crypto && window.crypto.getRandomValues) {
+                const array = new Uint8Array(32);
+                window.crypto.getRandomValues(array);
+                return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+            } else {
+                // Fallback for older browsers
+                let key = '';
+                for (let i = 0; i < 64; i++) {
+                    key += Math.floor(Math.random() * 16).toString(16);
+                }
+                return key;
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                log('📋 Link copied to clipboard');
+            }).catch(err => {
+                log(`❌ Copy failed: ${err.message}`);
+            });
+        }
+
+        function clearResults() {
+            document.getElementById('log').textContent = 'Test log cleared...\n';
+            document.getElementById('qr-canvas').getContext('2d').clearRect(0, 0, 200, 200);
+            document.getElementById('qr-info').textContent = 'QR code will appear here...';
+            updateStatus('Ready to test QR generation...', 'info');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🔧 Minimal QR test initialized');
+            log('📡 Ready to test QR generation with localhost:6969');
+        });
+    </script>
+</body>
+</html>
