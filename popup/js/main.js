@@ -81,7 +81,9 @@
             show('js-shared-session')
 
             getElementById('js-shared-session-text').innerHTML = encryptedData
-            displayLink(encryptedData)
+
+            // Add GitHub Gist integration
+            addGitHubGistOption(encryptedData, tab, expirationTime)
           })
 
         } catch(e) {
@@ -102,17 +104,185 @@
       // --------------------------------------------------------------------
       // attach-share specific helpers
 
-      function displayLink(encryptedData) {
-        shareText.getLink(encryptedData,
-          function success(link) {
-            getElementById('js-share-text-link').innerHTML = link
-            show('js-share-text-actions')
-            window.scrollBy({ top: 500, left: 0, behavior: 'smooth' })
-          },
-          function error() {
-            getElementById('js-share-text-link').innerHTML = 'Whops, couldn\'t get the link'
+      function addGitHubGistOption(encryptedData, tab, expirationTime) {
+        // Check if GitHub module is available
+        if (!window.github) {
+          console.warn('GitHub module not loaded')
+          return
+        }
+
+        // Check if token is configured
+        github.hasToken(function(hasToken) {
+          const shareSection = getElementById('js-shared-session')
+          if (!shareSection) return
+
+          // Remove existing gist section if any
+          const existingGistSection = getElementById('js-gist-section')
+          if (existingGistSection) {
+            existingGistSection.remove()
           }
-        )
+
+          // Create gist section
+          const gistSection = document.createElement('div')
+          gistSection.id = 'js-gist-section'
+          gistSection.className = 'm-t'
+
+          if (hasToken) {
+            gistSection.innerHTML = `
+              <div class="small m-b-xs">Save to GitHub Gist:</div>
+              <button id="js-save-to-gist" class="btn btn-secondary">
+                <img src="./images/github.svg" alt="GitHub" width="16" style="vertical-align: middle; margin-right: 5px;" />
+                Save to Gist
+              </button>
+              <div id="js-gist-result" class="m-t-sm hidden">
+                <div class="small success">✅ Saved to GitHub Gist!</div>
+                <div class="share-text-link m-t-xs">
+                  <a id="js-gist-link" href="#" target="_blank" rel="noopener"></a>
+                </div>
+                <div class="action-icon" data-clipboard data-clipboard-target="#js-gist-link" data-balloon="Copy Gist URL" data-balloon-pos="right">
+                  <img src="./images/copy.svg" alt="Copy link" width="12" />
+                </div>
+              </div>
+              <div id="js-gist-error" class="m-t-sm error hidden"></div>
+            `
+
+            // Attach save to gist handler
+            setTimeout(function() {
+              const saveButton = getElementById('js-save-to-gist')
+              if (saveButton) {
+                saveButton.addEventListener('click', function() {
+                  saveToGitHubGist(encryptedData, tab, expirationTime)
+                })
+              }
+
+              // Re-initialize clipboard for the new copy button
+              if (window.ClipboardJS) {
+                new ClipboardJS('[data-clipboard]')
+              }
+            }, 100)
+          } else {
+            gistSection.innerHTML = `
+              <div class="small m-b-xs">💡 Want to save to GitHub Gist?</div>
+              <div class="explanation">
+                Configure your GitHub token in settings to save encrypted sessions as Gists.
+              </div>
+              <button id="js-open-github-settings" class="btn btn-secondary m-t-xs">
+                Configure GitHub
+              </button>
+            `
+
+            // Attach settings button handler
+            setTimeout(function() {
+              const settingsButton = getElementById('js-open-github-settings')
+              if (settingsButton) {
+                settingsButton.addEventListener('click', function() {
+                  // Navigate to settings - we'll need to implement this
+                  alert('Please go to Settings from the main menu to configure your GitHub token.')
+                })
+              }
+            }, 100)
+          }
+
+          shareSection.appendChild(gistSection)
+        })
+      }
+
+      function saveToGitHubGist(encryptedData, tab, expirationTime) {
+        const saveButton = getElementById('js-save-to-gist')
+        const resultEl = getElementById('js-gist-result')
+        const errorEl = getElementById('js-gist-error')
+
+        console.log('[GitHub Gist] Preparing to save encrypted session to Gist')
+        console.log('[GitHub Gist] Encrypted data length:', encryptedData ? encryptedData.length : 0)
+        console.log('[GitHub Gist] Tab info:', { url: tab.url, title: tab.title })
+
+        if (saveButton) {
+          saveButton.disabled = true
+          saveButton.textContent = 'Saving...'
+        }
+
+        // Hide previous results
+        if (resultEl) resultEl.classList.add('hidden')
+        if (errorEl) {
+          errorEl.classList.add('hidden')
+          errorEl.textContent = ''
+        }
+
+        // Calculate expiration hours
+        const now = Date.now()
+        const expirationHours = Math.ceil((expirationTime - now) / (1000 * 60 * 60))
+
+        console.log('[GitHub Gist] Expiration hours:', expirationHours)
+
+        // Extract domain from URL
+        let domain = ''
+        try {
+          const urlObj = new URL(tab.url)
+          domain = urlObj.hostname
+        } catch (e) {
+          domain = tab.url
+        }
+
+        // Create gist with encrypted data
+        github.createGist({
+          encryptedData: encryptedData,
+          description: `SecureShare Session - ${tab.title}`,
+          public: false,
+          expirationHours: expirationHours,
+          url: tab.url,
+          title: tab.title,
+          domain: domain
+        }, function(error, result) {
+          if (saveButton) {
+            saveButton.disabled = false
+            saveButton.innerHTML = `
+              <img src="./images/github.svg" alt="GitHub" width="16" style="vertical-align: middle; margin-right: 5px;" />
+              Save to Gist
+            `
+          }
+
+          if (error) {
+            console.error('Failed to save to Gist:', error)
+            if (errorEl) {
+              errorEl.textContent = `❌ Error: ${error.message}`
+              errorEl.classList.remove('hidden')
+            }
+          } else {
+            console.log('Gist created:', result)
+            if (resultEl) {
+              const linkEl = getElementById('js-gist-link')
+              if (linkEl) {
+                linkEl.href = result.url
+                linkEl.textContent = result.url
+              }
+              resultEl.classList.remove('hidden')
+            }
+
+            // Save to gist history
+            saveGistToHistory(result, tab)
+          }
+        })
+      }
+
+      function saveGistToHistory(gistInfo, tab) {
+        configuration.get('gistHistory', function(history) {
+          const updatedHistory = history || []
+          updatedHistory.unshift({
+            id: gistInfo.id,
+            url: gistInfo.url,
+            created_at: new Date().toISOString(),
+            title: tab.title
+          })
+
+          // Keep only last 50 gists in history
+          if (updatedHistory.length > 50) {
+            updatedHistory.length = 50
+          }
+
+          configuration.set({ gistHistory: updatedHistory }, function() {
+            console.log('Gist saved to history')
+          })
+        })
       }
     },
 
@@ -168,6 +338,262 @@
         let key = event.currentTarget.dataset.key
         session.remove(key, () => fullRender('history'))
       })
+    },
+
+    'attach-settings': function() {
+      log('[Events] Attaching Settings events')
+
+      const form = getElementById('js-github-settings')
+      const testButton = getElementById('js-test-token')
+      const removeButton = getElementById('js-remove-token')
+      const tokenInput = getElementById('github-token')
+      const toggleButton = getElementById('js-toggle-token')
+      const tokenStatus = getElementById('js-token-status')
+
+      // Add token visibility toggle
+      if (toggleButton && tokenInput) {
+        toggleButton.addEventListener('click', function() {
+          if (tokenInput.type === 'password') {
+            tokenInput.type = 'text'
+            toggleButton.innerHTML = `
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            `
+          } else {
+            tokenInput.type = 'password'
+            toggleButton.innerHTML = `
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            `
+          }
+        })
+      }
+
+      // Load existing token if available
+      if (window.github) {
+        github.getToken(function(error, token) {
+          if (!error && token) {
+            if (tokenInput) {
+              tokenInput.value = token
+            }
+            if (removeButton) {
+              removeButton.classList.remove('hidden')
+            }
+            if (tokenStatus) {
+              tokenStatus.textContent = '✓ Configured'
+              tokenStatus.classList.add('active')
+            }
+            showGitHubStatus('✅ GitHub token configured', 'success')
+          }
+        })
+      }
+
+      // Handle form submission
+      if (form) {
+        addEventListener('#js-github-settings', 'submit', function() {
+          const token = tokenInput.value.trim()
+
+          if (!token) {
+            showGitHubStatus('❌ Please enter a token', 'error')
+            return
+          }
+
+          // Save the token
+          github.saveToken(token, function(error) {
+            if (error) {
+              showGitHubStatus(`❌ Error: ${error.message}`, 'error')
+            } else {
+              showGitHubStatus('✅ Token saved successfully!', 'success')
+              if (removeButton) {
+                removeButton.classList.remove('hidden')
+              }
+            }
+          })
+        })
+      }
+
+      // Handle test connection
+      if (testButton) {
+        addEventListener('#js-test-token', 'click', function() {
+          const token = tokenInput.value.trim()
+
+          if (!token) {
+            showGitHubStatus('❌ Please enter a token first', 'error')
+            return
+          }
+
+          testButton.disabled = true
+          testButton.textContent = 'Testing...'
+
+          // First save the token
+          github.saveToken(token, function(saveError) {
+            if (saveError) {
+              testButton.disabled = false
+              testButton.textContent = 'Test Connection'
+              showGitHubStatus(`❌ Error saving token: ${saveError.message}`, 'error')
+              return
+            }
+
+            // Test the token by creating a test gist
+            github.createGist({
+              encryptedData: 'test',
+              description: 'SecureShare Test Gist (can be deleted)',
+              public: false,
+              expirationHours: 1,
+              url: 'https://test.example.com',
+              title: 'Test Session',
+              domain: 'test.example.com'
+            }, function(error, result) {
+              testButton.disabled = false
+              testButton.textContent = 'Test Connection'
+
+              if (error) {
+                showGitHubStatus(`❌ Connection failed: ${error.message}`, 'error')
+              } else {
+                showGitHubStatus('✅ Connection successful! Test gist created.', 'success')
+
+                // Delete the test gist
+                github.deleteGist(result.id, function(deleteError) {
+                  if (!deleteError) {
+                    console.log('Test gist deleted')
+                  }
+                })
+              }
+            })
+          })
+        })
+      }
+
+      // Handle token removal
+      if (removeButton) {
+        addEventListener('#js-remove-token', 'click', function() {
+          if (confirm('Are you sure you want to remove the GitHub token?')) {
+            configuration.set({ githubToken: null }, function() {
+              tokenInput.value = ''
+              removeButton.classList.add('hidden')
+              showGitHubStatus('Token removed', 'info')
+            })
+          }
+        })
+      }
+
+      // Load gist history
+      loadGistHistory()
+
+      // Helper function to show GitHub status
+      function showGitHubStatus(message, type) {
+        const statusEl = getElementById('js-github-status')
+        if (statusEl) {
+          const messageEl = statusEl.querySelector('.status-message')
+          if (messageEl) {
+            messageEl.textContent = message
+          }
+          statusEl.className = `settings-status ${type}`
+          statusEl.classList.remove('hidden')
+
+          if (type !== 'error') {
+            setTimeout(function() {
+              statusEl.classList.add('hidden')
+            }, 3000)
+          }
+        }
+      }
+
+      // Helper function to load gist history
+      let gistHistoryLimit = 5
+
+      function loadGistHistory(showAll = false) {
+        configuration.get('gistHistory', function(history) {
+          const historyEl = getElementById('js-gist-history')
+          if (!historyEl) return
+
+          if (!history || history.length === 0) {
+            historyEl.innerHTML = `
+              <div class="gist-empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <p>No gists created yet</p>
+                <span class="gist-empty-hint">Share a session and save it to GitHub to see it here</span>
+              </div>
+            `
+            return
+          }
+
+          const limit = showAll ? history.length : gistHistoryLimit
+          let historyHTML = '<div class="gist-list">'
+
+          history.slice(0, limit).forEach(function(gist) {
+            const date = new Date(gist.created_at)
+            const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+
+            // Extract gist ID from URL for display
+            const gistId = gist.url.split('/').pop()
+            const displayTitle = gist.title || 'SecureShare Session'
+
+            historyHTML += `
+              <div class="gist-item">
+                <div class="gist-item-content">
+                  <div class="gist-item-title" title="${displayTitle}">
+                    ${displayTitle}
+                  </div>
+                  <div class="gist-item-url">
+                    <a href="${gist.url}" target="_blank" rel="noopener" title="${gist.url}">
+                      gist:${gistId.substring(0, 8)}...
+                    </a>
+                  </div>
+                </div>
+                <div class="gist-item-date">${dateStr}</div>
+              </div>
+            `
+          })
+
+          if (history.length > gistHistoryLimit && !showAll) {
+            historyHTML += `
+              <div class="gist-load-more">
+                <button id="js-load-more-gists" class="settings-btn settings-btn-secondary">
+                  Show ${history.length - gistHistoryLimit} more
+                </button>
+              </div>
+            `
+          } else if (showAll && history.length > gistHistoryLimit) {
+            historyHTML += `
+              <div class="gist-load-more">
+                <button id="js-show-less-gists" class="settings-btn settings-btn-secondary">
+                  Show less
+                </button>
+              </div>
+            `
+          }
+
+          historyHTML += '</div>'
+          historyEl.innerHTML = historyHTML
+
+          // Add event listeners for load more/less buttons
+          const loadMoreBtn = getElementById('js-load-more-gists')
+          const showLessBtn = getElementById('js-show-less-gists')
+
+          if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+              loadGistHistory(true)
+            })
+          }
+
+          if (showLessBtn) {
+            showLessBtn.addEventListener('click', function() {
+              loadGistHistory(false)
+            })
+          }
+        })
+      }
     },
 
     'attach-qr-share': function() {
@@ -735,7 +1161,17 @@
           expirationTime: expirationTime
         }
 
+        console.log('[Session Store] Data to encrypt:', {
+          url: data.url,
+          title: data.title,
+          cookieCount: data.cookies ? data.cookies.length : 0,
+          expirationTime: new Date(data.expirationTime).toISOString()
+        })
+
         const encryptedData = keys.encrypt(publicKey, data)
+
+        console.log('[Session Store] Encrypted data preview:', encryptedData.substring(0, 100) + '...')
+        console.log('[Session Store] Full encrypted data will be saved to Gist')
 
         session.record(tab.url, tab.title)
         callback(encryptedData, tab)

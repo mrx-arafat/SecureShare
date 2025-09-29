@@ -4,7 +4,7 @@
 
 # SecureShare
 
-### 🔐 Share Your Accounts Without Sharing Your Passwords
+### 🔐 Share Your Sessions Without Sharing Your Passwords
 
   [![Version](https://img.shields.io/badge/version-1.3.0-blue?style=flat-square)](https://github.com/mrx-arafat/SecureShare/releases)
   [![Manifest](https://img.shields.io/badge/manifest-v3-green?style=flat-square)](https://github.com/mrx-arafat/SecureShare/blob/main/manifest.json)
@@ -13,9 +13,9 @@
   [![GitHub Stars](https://img.shields.io/github/stars/mrx-arafat/SecureShare?style=flat-square)](https://github.com/mrx-arafat/SecureShare/stargazers)
   [![GitHub Issues](https://img.shields.io/github/issues/mrx-arafat/SecureShare?style=flat-square)](https://github.com/mrx-arafat/SecureShare/issues)
 
-  **A Chrome extension that enables secure, temporary account sharing without revealing passwords**
+  **A modern Chrome extension for secure, encrypted session sharing with end-to-end encryption**
 
-  [**Install Extension**](#-installation) • [**Quick Start**](#-quick-start) • [**How It Works**](#-how-it-works) • [**Security**](#-security)
+  [**Install Extension**](#-installation) • [**Quick Start**](#-quick-start) • [**Features**](#-features) • [**Security**](#-security)
 
 </div>
 
@@ -23,54 +23,70 @@
 
 ## 🎯 Overview
 
-SecureShare is a revolutionary Chrome extension that solves a common problem: sharing access to online accounts without compromising security. Using military-grade encryption, it allows you to share your logged-in sessions temporarily without ever revealing your passwords.
+SecureShare revolutionizes online account sharing by enabling secure, temporary session transfers without ever exposing passwords. Using advanced elliptic curve cryptography (EC-ElGamal), it creates encrypted session snapshots that only the intended recipient can decrypt.
 
 ### ✨ Key Features
 
-- 🔒 **Zero Password Exposure** - Share accounts without revealing credentials
-- 📱 **Mobile Session Sharing** - Generate QR codes to instantly share sessions to mobile devices
-- ⏱️ **Time-Limited Access** - Automatic 30-minute expiration for all shared sessions
-- 🔐 **Military-Grade Encryption** - AES-256-GCM encryption with secure key exchange
-- 🌐 **Universal Compatibility** - Works with any website or web application
-- 🚀 **One-Click Sharing** - Simple, intuitive interface with guided onboarding
-- 📊 **Analytics & Monitoring** - Privacy-respecting usage analytics and system health monitoring
-- 🛡️ **Privacy-First** - Secure server infrastructure with one-time use semantics
-- 🔄 **Instant Revocation** - Sessions automatically expire and can be cancelled anytime
+- 🔒 **End-to-End Encryption** - EC-ElGamal encryption ensures only the recipient can decrypt
+- 🔑 **Zero Password Exposure** - Share sessions without revealing credentials
+- 📱 **QR Code Sharing** - Instantly share sessions to mobile devices via QR codes
+- 🐙 **GitHub Gist Integration** - Save encrypted sessions as private GitHub Gists
+- ⏱️ **Customizable Expiration** - Set session timeout from 1 hour to 30 days
+- 🎨 **Modern UI Design** - Beautiful glassmorphism interface with smooth animations
+- 🌐 **Universal Compatibility** - Works with any website that uses cookies
+- 📋 **Session History** - Track and manage your shared sessions
+- 🔄 **One-Click Restore** - Easily restore shared sessions with a single click
+- 🛡️ **Privacy-First** - All encryption happens locally in your browser
 
 ### 💡 Use Cases
 
-- **👨‍👩‍👧‍👦 Family Sharing** - Share streaming services with family members
+- **👨‍👩‍👧‍👦 Family Sharing** - Share streaming services with family members securely
 - **👥 Team Collaboration** - Provide temporary access to work accounts
-- **🆘 Remote Support** - Help others access their accounts securely
-- **📱 Mobile Access** - Instantly transfer desktop sessions to mobile devices via QR codes
-- **🎮 Gaming Accounts** - Share game accounts without password risks
-- **💼 Cross-Device Work** - Seamlessly continue work sessions on different devices
+- **🆘 Remote Support** - Help others access their accounts without password sharing
+- **📱 Cross-Device Access** - Transfer desktop sessions to mobile devices instantly
+- **🎮 Gaming Accounts** - Share game accounts temporarily without password risks
+- **💼 Development Testing** - Share test account sessions with QA teams
+
+---
+
+## 🎨 Features
+
+### Core Functionality
+- **🔐 Share Session** - Share your current browser session securely
+- **🔓 Restore Session** - Restore a shared session from encrypted data
+- **📱 QR Code Sharing** - Generate QR codes for mobile device sharing
+- **🐙 GitHub Gist Integration** - Save encrypted sessions as private Gists
+- **📋 Session History** - View and manage your sharing history
+- **⚙️ Settings** - Configure GitHub token and preferences
+
+### Modern UI/UX
+- **Glass Morphism Design** - Beautiful frosted glass effects
+- **Smooth Animations** - Fluid transitions and hover effects
+- **Dark Theme** - Eye-friendly dark interface
+- **Responsive Layout** - Adapts to different screen sizes
+- **Step-by-Step Guidance** - Clear numbered steps for sharing
+- **Visual Feedback** - Success/error states with clear messaging
 
 ---
 
 ## 📦 Installation
 
-### Option 1: Chrome Web Store (Recommended)
-
+### Option 1: Chrome Web Store
 *Coming soon - Currently in review*
 
 ### Option 2: Manual Installation
 
 1. **Download the Extension**
-
    ```bash
    git clone https://github.com/mrx-arafat/SecureShare.git
    cd SecureShare
    ```
-2. **Open Chrome Extensions Page**
 
+2. **Open Chrome Extensions**
    - Navigate to `chrome://extensions/`
-   - Or go to Menu → More Tools → Extensions
-3. **Enable Developer Mode**
+   - Enable "Developer mode" (top-right toggle)
 
-   - Toggle the "Developer mode" switch in the top-right corner
-4. **Load the Extension**
-
+3. **Load Extension**
    - Click "Load unpacked"
    - Select the `SecureShare` folder
    - The SecureShare icon will appear in your toolbar
@@ -79,35 +95,71 @@ SecureShare is a revolutionary Chrome extension that solves a common problem: sh
 
 ## 🚀 Quick Start
 
-### Sharing an Account (Sender)
+### Share a Session
 
-1. **Navigate to the website** where you're logged in
-2. **Click the SecureShare icon** in your Chrome toolbar
-3. **Get recipient's code** - Ask them to open SecureShare and click "Receive Account"
-4. **Click "Share Account"** and paste the recipient's code
-5. **Set expiration time** (optional - defaults to 1 week)
-6. **Click "Share"** and copy the encrypted session data
-7. **Send the encrypted data** to the recipient via any messaging app
+1. **Navigate** to any website where you're logged in
+2. **Click** the SecureShare icon in Chrome toolbar
+3. **Select** "Share Session"
+4. **Enter** the recipient's device code
+5. **Set** expiration time (1 hour to 30 days)
+6. **Generate** encrypted session
+7. **Send** the encrypted data to recipient
 
-### Receiving an Account (Recipient)
+### Restore a Session
 
-1. **Open SecureShare** and click "Receive Account"
-2. **Copy your unique code** and share it with the sender
-3. **Paste the encrypted data** you received from the sender
-4. **Click "Receive"** - The website will open with the shared session active!
+1. **Click** SecureShare icon
+2. **Select** "Restore Session"
+3. **Share** your device code with the sender
+4. **Paste** the encrypted session data
+5. **Click** "Restore Session"
+6. The website opens with the session active!
+
+### Save to GitHub Gist
+
+1. **Go to Settings** in SecureShare
+2. **Add GitHub Token** (with gist permissions)
+3. **Share any session**
+4. **Click** "Save to Gist" button
+5. Session is saved as a private Gist
+
+### Share via QR Code
+
+1. **Select** "Share Current Session"
+2. **Enter** recipient code
+3. **Generate** QR code
+4. **Scan** with mobile device
+5. Session transfers instantly!
 
 ---
 
 ## 🔧 How It Works
 
-SecureShare uses advanced cryptographic techniques to ensure your passwords never leave your device:
+### Technical Architecture
 
-1. **Key Generation** - Each installation generates a unique public-private key pair
-2. **Session Extraction** - Cookies from the current tab are extracted locally
-3. **Encryption** - Session data is encrypted using the recipient's public key
-4. **Transfer** - Encrypted data is shared as text (no servers involved)
-5. **Decryption** - Only the recipient's private key can decrypt the session
-6. **Session Restoration** - Cookies are restored and the session becomes active
+1. **🔑 Key Generation**
+   - Unique EC-ElGamal keypair per installation
+   - Public key for encryption, private key for decryption
+   - Keys stored locally in Chrome storage
+
+2. **🍪 Session Extraction**
+   - Captures all cookies from current tab
+   - Includes domain, path, and security flags
+   - Preserves session state completely
+
+3. **🔐 Encryption Process**
+   - Uses recipient's public key
+   - EC-ElGamal encryption (elliptic curve)
+   - Creates tamper-proof encrypted payload
+
+4. **📤 Data Transfer**
+   - No server involvement
+   - Direct peer-to-peer via text/QR
+   - Optional GitHub Gist storage
+
+5. **🔓 Decryption & Restore**
+   - Only recipient's private key works
+   - Cookies restored with original properties
+   - Session becomes immediately active
 
 ---
 
@@ -115,16 +167,23 @@ SecureShare uses advanced cryptographic techniques to ensure your passwords neve
 
 ### Encryption Standards
 - **Algorithm**: EC-ElGamal (Elliptic Curve Cryptography)
-- **Library**: Stanford Javascript Crypto Library (SJCL)
-- **Key Size**: 256-bit elliptic curve keys
-- **Security Level**: Military-grade encryption
-
+- **Library**: Stanford JavaScript Crypto Library (SJCL)
+- **Curve**: secp256k1 (256-bit security)
+- **Key Exchange**: ECDH (Elliptic Curve Diffie-Hellman)
 ### Privacy Features
 - ✅ **No Password Storage** - Passwords never leave your device
-- ✅ **No External Servers** - All processing happens locally
-- ✅ **No Tracking** - Zero analytics or data collection
-- ✅ **Automatic Expiration** - Sessions expire at set times
+- ✅ **Local Encryption** - All encryption happens in your browser
+- ✅ **No Tracking** - Zero analytics or user tracking
+- ✅ **Automatic Expiration** - Sessions expire at configured time
+- ✅ **One-Time Use** - Shared sessions can't be reused
 - ✅ **Key Regeneration** - Generate new keys anytime
+
+### Security Best Practices
+- 🔐 Never share your private key
+- ⏱️ Use short expiration times for sensitive accounts
+- 🔄 Regenerate keys periodically
+- 🚫 Only share with trusted recipients
+- 📱 Use QR codes for secure mobile transfer
 
 ---
 
@@ -145,34 +204,61 @@ cd SecureShare
 npm install
 
 # Build for production
-npm run build:prod
+gulp build:prod
 ```
 
 ### Project Structure
 ```
 SecureShare/
-├── manifest.json        # Extension configuration
-├── icons/              # Extension icons
-├── popup/              # Extension popup UI
-│   ├── index.html      # Main popup HTML
-│   ├── css/            # Stylesheets
-│   ├── js/             # JavaScript files
-│   └── images/         # UI assets
-├── package.json        # Dependencies
-└── README.md           # Documentation
+├── manifest.json           # Extension configuration
+├── icons/                  # Extension icons
+├── popup/                  # Extension popup UI
+│   ├── index.html         # Main popup HTML
+│   ├── css/               # Stylesheets
+│   │   └── styles.css     # Main styles
+│   ├── js/                # JavaScript modules
+│   │   ├── main.js        # Core application logic
+│   │   ├── cryptography.js # Encryption/decryption
+│   │   ├── cookieManager.js # Cookie operations
+│   │   ├── github.js      # GitHub Gist integration
+│   │   └── qrcode.js      # QR code generation
+│   └── images/            # UI assets
+├── gulpfile.js            # Build configuration
+├── package.json           # Dependencies
+└── README.md              # Documentation
+```
+
+### Available Scripts
+```bash
+npm run build:prod         # Build for production
+npm run package           # Create distribution package
 ```
 
 ---
 
+## 🚧 Roadmap
+
+### Version 1.4.0 (Upcoming)
+- [ ] Mara Khau Kono Planning Nai
+
+
 ## 🤝 Contributing
 
-Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Please follow these steps:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Create** your feature branch (`git checkout -b feature/AmazingFeature`)
+3. **Commit** your changes (`git commit -m 'Add: Amazing new feature'`)
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)
+5. **Open** a Pull Request
+
+### Commit Convention
+```
+TYPE: #ISSUE_ID, Description
+
+Types: FIX | FEAT | DOCS | REFACTOR | TEST | CHORE
+Example: FIX: #123, Resolve cookie extraction on Netflix
+```
 
 ---
 
@@ -194,9 +280,28 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## ⭐ Support
 
 If you find SecureShare useful, please consider:
-- ⭐ [Star this repository](https://github.com/mrx-arafat/SecureShare)
-- 🐛 [Report issues](https://github.com/mrx-arafat/SecureShare/issues)
-- 💡 [Suggest features](https://github.com/mrx-arafat/SecureShare/issues)
+- ⭐ **Star** this repository
+- 🐛 **Report** [issues](https://github.com/mrx-arafat/SecureShare/issues)
+- 💡 **Request** [features](https://github.com/mrx-arafat/SecureShare/issues)
+- 🔀 **Share** with friends and colleagues
+
+---
+
+## 🙏 Acknowledgments
+
+- [Stanford JavaScript Crypto Library](https://github.com/bitwiseshiftleft/sjcl) - Encryption library
+- [QRCode.js](https://github.com/davidshimjs/qrcodejs) - QR code generation
+- Chrome Extension community for guidance and support
+
+---
+
+<div align="center">
+
+  **Made with ❤️ by [Easin Arafat](https://github.com/mrx-arafat)**
+
+  <sub>Secure sharing for a safer internet</sub>
+
+</div>
 - 🍴 [Fork the project](https://github.com/mrx-arafat/SecureShare/fork)
 
 ---

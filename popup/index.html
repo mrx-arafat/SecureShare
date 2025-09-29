@@ -40,6 +40,10 @@
             <span class="btn-icon">📋</span>
             <span class="btn-text">Session History</span>
           </button>
+          <button class="btn btn-secondary" data-menu="settings">
+            <span class="btn-icon">⚙️</span>
+            <span class="btn-text">Settings</span>
+          </button>
         </div>
 
         <div class="menu-footer">
@@ -52,59 +56,174 @@
 
     <template id="js-template-share">
       <section class="share">
-        <div class="back-button-top">
-          <div class="js-go-back-top go-back-top link">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div class="share-header">
+          <div class="js-go-back-top share-back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
+          <h2 class="share-title">
+            <span class="share-icon">🔐</span>
+            Share Session
+          </h2>
         </div>
-        <div class="title">🔐 Share Current Session</div>
-        <div class="explanation">Share your <strong>"{{=tab.title}}"</strong> session securely with another device.</div>
 
-        <form action="/" id="js-share-session">
-          <div class="input-container">
-            <div class="small">👤 Recipient code <span class="link" data-balloon="Paste the code of the person you want to share your extension with. It can be found on the 'Receive account' section." data-balloon-length="medium-xl" data-balloon-pos="right">?</span></div>
-            <input type="text" name="pubkey" value="" placeholder="Enter the recipient's device code" autocomplete="off" required />
-          </div>
-
-          <div class="input-container timeout-container">
-            <div class="small">⏰ Session timeout (hours) <span class="link" data-balloon="How long the shared session will remain active. Default is 168 hours (1 week)." data-balloon-length="medium" data-balloon-pos="right">?</span></div>
-            <input type="number" name="timeout" value="" min="1" max="720" placeholder="168 (1 week default)" autocomplete="off" />
-            <div id="js-expires-on" class="expires-on"></div>
-          </div>
-
-          <div class="flex-container">
-            <div class="js-go-back go-back link">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <div class="share-container">
+          <!-- Current Session Info -->
+          <div class="session-info-card">
+            <div class="session-info-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
               </svg>
-              <span>back</span>
             </div>
-            <input type="submit" name="submit" class="btn btn-primary" value="🔐 Share Session" disabled />
+            <div class="session-info-content">
+              <div class="session-info-label">Currently sharing from</div>
+              <div class="session-info-title">{{=tab.title}}</div>
+              <div class="session-info-url">{{=tab.url}}</div>
+            </div>
           </div>
-        </form>
 
-        <div id="js-shared-session" class="shared-session hidden">
-          <div class="small">Share result <span class="link" data-balloon="Share this text with the owner of the code" data-balloon-length="medium" data-balloon-pos="right">?</span> <span id="js-session-hide" class="link delete">x</span></div>
-
-          <pre id="js-shared-session-text" class="encrypted-data share-result"></pre>
-
-          <div class="action-icon" data-clipboard data-clipboard-target="#js-shared-session-text" data-balloon="Copy encryption" data-balloon-pos="right"><img src="./images/copy.svg" alt="Copy encryption" width="12" /></div>
-
-          <div class="m-t-sm">
-            <div class="small m-b-xs">or, share this link:</div>
-
-            <div id="js-share-text-link" class="share-text-link share-result">Creating link...</div>
-
-            <div id="js-share-text-actions" class="hidden">
-              <div class="action-icon" data-balloon="Copy link" data-balloon-pos="right" data-clipboard data-clipboard-target="#js-share-text-link">
-                <img src="./images/copy.svg" alt="Copy link" width="12" />
+          <!-- Share Form -->
+          <form action="/" id="js-share-session" class="share-form">
+            <!-- Step 1: Recipient Code -->
+            <div class="share-card">
+              <div class="share-card-header">
+                <div class="step-number">1</div>
+                <div>
+                  <h3 class="share-card-title">Enter Recipient Code</h3>
+                  <p class="share-card-description">Get this from the person receiving the session</p>
+                </div>
               </div>
-              <small>
-                &nbsp;
-                <span class="link" data-balloon="The site contains the share result. It'll be deleted in 10 minutes or upon the first viewing."  data-balloon-pos="right" data-balloon-length="large" data-balloon-pos="top">?</span>
-              </small>
+
+              <div class="recipient-input-group">
+                <div class="input-header">
+                  <label for="recipient-code" class="input-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    Recipient's Device Code
+                  </label>
+                  <span class="help-tooltip" data-tooltip="The recipient can find this code in their 'Restore Session' section">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+                      <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  id="recipient-code"
+                  name="pubkey"
+                  class="share-input"
+                  placeholder='{"x":"7b5e2c8a9f3d1e4b6a8c2d5f7e9b3c6d8f1a4e7b9c2d5f8a1b3e6c9d2f5a8b","y":"4c7d9e2f5a8b1c3e6d9f2a5b8c1d4e7f9a2c5d8e1b4f7a9d2e5b8c1f4a7d9e"}'
+                  autocomplete="off"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Step 2: Expiration Time -->
+            <div class="share-card">
+              <div class="share-card-header">
+                <div class="step-number">2</div>
+                <div>
+                  <h3 class="share-card-title">Set Expiration Time</h3>
+                  <p class="share-card-description">How long should the session remain active?</p>
+                </div>
+              </div>
+
+              <div class="timeout-input-group">
+                <div class="input-header">
+                  <label for="timeout-hours" class="input-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Hours Until Expiration
+                  </label>
+                  <span class="help-tooltip" data-tooltip="Default is 168 hours (1 week). Maximum is 720 hours (30 days)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+                      <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                  </span>
+                </div>
+                <input
+                  type="number"
+                  id="timeout-hours"
+                  name="timeout"
+                  class="share-input"
+                  min="1"
+                  max="720"
+                  placeholder="168"
+                  value="168"
+                  autocomplete="off"
+                />
+                <div id="js-expires-on" class="expiration-preview"></div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="share-actions">
+              <button type="button" class="js-go-back share-btn share-btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Back
+              </button>
+              <button type="submit" name="submit" class="share-btn share-btn-primary" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+                Generate Encrypted Session
+              </button>
+            </div>
+          </form>
+
+          <!-- Share Result -->
+          <div id="js-shared-session" class="share-result-card hidden">
+            <div class="result-header">
+              <h3 class="result-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Session Encrypted Successfully
+              </h3>
+              <button type="button" id="js-session-hide" class="result-close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="result-content">
+              <div class="result-label">Encrypted Session Data</div>
+              <div class="result-data-wrapper">
+                <pre id="js-shared-session-text" class="result-data"></pre>
+                <button type="button" class="copy-btn" data-clipboard data-clipboard-target="#js-shared-session-text">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                  </svg>
+                  Copy
+                </button>
+              </div>
+              <div class="result-help">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="16" x2="12" y2="12"/>
+                  <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span>Send this encrypted data to the recipient. Only they can decrypt it with their private key.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -117,45 +236,136 @@
 
     <template id="js-template-restore">
       <section class="restore">
-        <div class="back-button-top">
-          <div class="js-go-back-top go-back-top link">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div class="restore-header">
+          <div class="js-go-back-top restore-back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-        </div>
-        <div class="title">🔓 Restore Session</div>
-        <div class="explanation">Share your device code with the sender, then paste their encrypted session data below.</div>
-
-        <div class="your-code">
-          <div class="small">📱 Your device code</div>
-          <div class="code-description">Share this code with the person who wants to send you a session:</div>
-          <div class="input-container">
-            <input id="js-user-pubkey" name="pubkey" type="text" value="{{=publicKey}}" readonly />
-            <div class="action-icon" data-balloon="Copy your device code" data-clipboard data-clipboard-target="#js-user-pubkey">
-              <img src="./images/copy.svg" alt="Copy code" width="12" />
-            </div>
-            <div id="js-regenerate-keys" class="action-icon regenerate-icon" data-balloon="Generate a new device code. Warning: This will invalidate your current code and any pending shares." data-balloon-length="large" data-balloon-pos="left">
-              <img src="./images/refresh.svg" alt="Regenerate code" width="12" />
-            </div>
-          </div>
+          <h2 class="restore-title">
+            <span class="restore-icon">🔓</span>
+            Restore Session
+          </h2>
         </div>
 
-        <form action="/" id="js-restore-session" class="m-t">
-          <div>
-            <div class="small">Share result <span class="link" data-balloon="Paste the share result here. If you gave the sender your code, you'll be the only one able to decrypt it." data-balloon-length="medium" data-balloon-pos="right">?</span></div>
+        <div class="restore-container">
+          <!-- Step 1: Your Device Code -->
+          <div class="restore-card">
+            <div class="restore-card-header">
+              <div class="step-number">1</div>
+              <div>
+                <h3 class="restore-card-title">Your Device Code</h3>
+                <p class="restore-card-description">Share this code with the sender</p>
+              </div>
+            </div>
 
-            <textarea name="encrypted-data" placeholder='For example: {"iv":"C+Qfxtx6UM6YkQ7glsVsLg==", "v":1, "iter":10000, "ks":128, "ts":64, "mode":"ccm", "adata":"", "cipher":"aes", "kemtag":"dJN3vJbV4C", "ct":"psRDxcWb"}
-
-Remember that the session might end at any time.' rows="10"></textarea>
-            <div id="js-restore-notice" class="explanation"></div>
+            <div class="device-code-section">
+              <div class="code-input-wrapper">
+                <input
+                  id="js-user-pubkey"
+                  name="pubkey"
+                  type="text"
+                  value="{{=publicKey}}"
+                  readonly
+                  class="device-code-input"
+                />
+                <div class="code-actions">
+                  <button type="button" class="code-action-btn" data-clipboard data-clipboard-target="#js-user-pubkey" title="Copy code">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                    </svg>
+                  </button>
+                  <button type="button" id="js-regenerate-keys" class="code-action-btn" title="Generate new code">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="23 4 23 10 17 10"/>
+                      <polyline points="1 20 1 14 7 14"/>
+                      <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="code-help">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="16" x2="12" y2="12"/>
+                  <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span>This code allows others to encrypt sessions specifically for you</span>
+              </div>
+            </div>
           </div>
 
-          <div class="restore-session-actions flex-container">
-            <div class="js-go-back go-back link">&lsaquo; back</div>
-            <input type="submit" name="submit" class="btn pull-right" value="Receive" disabled />
+          <!-- Step 2: Paste Encrypted Session -->
+          <div class="restore-card">
+            <div class="restore-card-header">
+              <div class="step-number">2</div>
+              <div>
+                <h3 class="restore-card-title">Paste Encrypted Session</h3>
+                <p class="restore-card-description">Enter the encrypted data from the sender</p>
+              </div>
+            </div>
+
+            <form action="/" id="js-restore-session" class="restore-form">
+              <div class="session-input-group">
+                <div class="session-input-header">
+                  <label for="encrypted-data" class="session-label">
+                    Encrypted Session Data
+                  </label>
+                  <span class="session-help-icon" data-balloon="Only you can decrypt this data with your device code" data-balloon-pos="left">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+                      <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                  </span>
+                </div>
+
+                <textarea
+                  name="encrypted-data"
+                  id="encrypted-data"
+                  class="session-textarea"
+                  placeholder='Paste the encrypted session data here...
+
+Example format:
+{"iv":"C+Qfxtx6UM6YkQ7glsVsLg==", "v":1, "iter":10000, ...}'
+                  rows="8"
+                ></textarea>
+
+                <div id="js-restore-notice" class="restore-notice"></div>
+              </div>
+
+              <div class="restore-actions">
+                <button type="button" class="js-go-back restore-btn restore-btn-secondary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                  </svg>
+                  Back
+                </button>
+                <button type="submit" name="submit" class="restore-btn restore-btn-primary" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  Restore Session
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
+
+          <!-- Info Card -->
+          <div class="restore-info-card">
+            <div class="info-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="info-content">
+              <h4>End-to-End Encrypted</h4>
+              <p>Sessions are encrypted with your device code. Only you can decrypt them.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <div id="js-error" class="error hidden"></div>
@@ -366,6 +576,165 @@ Remember that the session might end at any time.' rows="10"></textarea>
       <div id="js-error" class="error hidden"></div>
     </template>
 
+    <template id="js-template-settings">
+      <section class="settings">
+        <div class="settings-header">
+          <div class="js-go-back-top settings-back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2 class="settings-title">
+            <span class="settings-icon">⚙️</span>
+            Settings
+          </h2>
+        </div>
+
+        <div class="settings-container">
+          <!-- GitHub Integration Section -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="settings-card-title">GitHub Integration</h3>
+                <p class="settings-card-description">Save encrypted sessions as private Gists</p>
+              </div>
+            </div>
+
+            <form id="js-github-settings" class="github-settings-form">
+              <div class="token-input-group">
+                <label for="github-token" class="token-label">
+                  <span>Personal Access Token</span>
+                  <span class="token-status" id="js-token-status"></span>
+                </label>
+                <div class="token-input-wrapper">
+                  <input
+                    type="password"
+                    id="github-token"
+                    name="githubToken"
+                    placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                    class="token-input"
+                    autocomplete="off"
+                  />
+                  <button type="button" class="token-toggle" id="js-toggle-token">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="token-help">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                  <span>Need a token? <a href="https://github.com/settings/tokens/new?description=SecureShare&scopes=gist" target="_blank" rel="noopener">Generate one here</a> with 'gist' scope</span>
+                </div>
+              </div>
+
+              <div class="settings-actions">
+                <button type="submit" class="settings-btn settings-btn-primary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                  </svg>
+                  Save Token
+                </button>
+                <button type="button" id="js-test-token" class="settings-btn settings-btn-secondary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  Test Connection
+                </button>
+                <button type="button" id="js-remove-token" class="settings-btn settings-btn-danger hidden">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                  </svg>
+                  Remove Token
+                </button>
+              </div>
+
+              <div id="js-github-status" class="settings-status hidden">
+                <div class="status-message"></div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Gist History Section -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="settings-card-title">Recent Gists</h3>
+                <p class="settings-card-description">Your saved session history</p>
+              </div>
+            </div>
+
+            <div id="js-gist-history" class="gist-history">
+              <div class="gist-empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <p>No gists created yet</p>
+                <span class="gist-empty-hint">Share a session and save it to GitHub to see it here</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- About Section -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="16" x2="12" y2="12"/>
+                  <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="settings-card-title">About SecureShare</h3>
+                <p class="settings-card-description">Version 1.3.0</p>
+              </div>
+            </div>
+
+            <div class="settings-about">
+              <div class="about-item">
+                <span class="about-label">Developer</span>
+                <span class="about-value">Easin Arafat</span>
+              </div>
+              <div class="about-item">
+                <span class="about-label">License</span>
+                <span class="about-value">MIT</span>
+              </div>
+              <div class="about-item">
+                <span class="about-label">GitHub</span>
+                <a href="https://github.com/mrx-arafat/SecureShare" target="_blank" class="about-link">View on GitHub</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="js-error" class="error hidden"></div>
+    </template>
+
 
     <!-- Chrome API Mocks for Browser Testing -->
     <script>
@@ -458,7 +827,8 @@ Remember that the session might end at any time.' rows="10"></textarea>
     <script src="js/cryptography.js"></script>
     <script src="js/cookieManager.js"></script>
     <script src="js/sessionCapture.js"></script>
-    <script src="js/shareText.js"></script>
+
+    <script src="js/github.js"></script>
 
     <!-- Advanced QR Mobile Flow Modules -->
     <script src="js/base64url.js"></script>

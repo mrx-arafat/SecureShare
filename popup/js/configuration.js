@@ -14,7 +14,9 @@
     publicKey: null,      // User's public key for receiving shares
     privateKey: null,     // User's private key for decryption
     sessions: {},         // Share history: { timestamp: [{url, title}] }
-    hasSessions: false    // Quick flag to check if any sessions exist
+    hasSessions: false,   // Quick flag to check if any sessions exist
+    githubToken: null,    // GitHub personal access token for Gist integration
+    gistHistory: []       // History of created gists: [{id, url, created_at}]
   }
 
   /**
