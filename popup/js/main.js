@@ -97,7 +97,7 @@
       addEventListener('#js-copy-share-text', 'click', () => hide('js-shared-session'))
 
       this.onTextSubmitted('[name="pubkey"]', function(textarea) {
-        const submitButton = document.querySelector('input[name="submit"]')
+        const submitButton = document.querySelector('button[name="submit"]')
         enableIfText(textarea.value, submitButton)
       })
 
@@ -311,7 +311,7 @@
       })
 
       this.onTextSubmitted('[name="encrypted-data"]', function(textarea) {
-        const submitButton = document.querySelector('input[name="submit"]')
+        const submitButton = document.querySelector('button[name="submit"]')
         enableIfText(textarea.value, submitButton)
 
         let notice = ''
