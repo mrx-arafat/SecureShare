@@ -418,6 +418,22 @@ hr {
   box-sizing: border-box;
 }
 
+/* Global SVG Icon Styling */
+svg {
+  display: inline-block;
+  vertical-align: middle;
+  fill: none;
+  stroke: currentColor;
+}
+
+.btn-icon svg,
+.share-icon svg,
+.restore-icon svg,
+.settings-icon svg {
+  stroke: currentColor;
+  transition: var(--transition-normal);
+}
+
 /* Modern Button Styles */
 .btn {
   display: inline-flex;
@@ -444,6 +460,16 @@ hr {
   outline: none;
 }
 
+.btn .btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn .btn-icon svg {
+  stroke: currentColor;
+}
+
 .btn::before {
   content: '';
   position: absolute;
@@ -464,11 +490,13 @@ hr {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Ensure all button text is white on hover */
+/* Ensure all button text and icons are white on hover */
 .btn:hover .btn-text,
 .btn:hover .btn-icon,
+.btn:hover .btn-icon svg,
 .btn:hover span {
   color: white !important;
+  stroke: white !important;
 }
 
 .btn:hover::before {
@@ -510,6 +538,44 @@ hr {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.title svg {
+  stroke: var(--primary-color);
+  flex-shrink: 0;
+}
+
+/* Section Title Styles */
+.share-title,
+.restore-title,
+.settings-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.share-icon,
+.restore-icon,
+.settings-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.share-icon svg,
+.restore-icon svg,
+.settings-icon svg {
+  stroke: var(--primary-color);
 }
 
 .explanation {
@@ -695,6 +761,13 @@ hr {
   gap: var(--space-xs);
 }
 
+.privacy-note svg {
+  stroke: var(--success-color);
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
 .menu-app-logo img {
   max-width: 120px;
   height: auto;
@@ -723,9 +796,21 @@ hr {
 }
 
 .menu-actions .btn .btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1.25rem;
   margin: 0 var(--space-md) 0 0;
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.menu-actions .btn .btn-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  transition: var(--transition-normal);
 }
 
 .menu-actions .btn .btn-text {
@@ -969,23 +1054,32 @@ hr {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Ensure all template buttons have white text on hover */
+/* Ensure all template buttons have white text and icons on hover */
 .share .btn:hover,
 .restore .btn:hover,
 .qr-share .btn:hover,
-.history .btn:hover {
+.history .btn:hover,
+.settings .btn:hover {
   color: white !important;
 }
 
 .share .btn:hover .btn-text,
 .share .btn:hover .btn-icon,
+.share .btn:hover .btn-icon svg,
 .restore .btn:hover .btn-text,
 .restore .btn:hover .btn-icon,
+.restore .btn:hover .btn-icon svg,
 .qr-share .btn:hover .btn-text,
 .qr-share .btn:hover .btn-icon,
+.qr-share .btn:hover .btn-icon svg,
 .history .btn:hover .btn-text,
-.history .btn:hover .btn-icon {
+.history .btn:hover .btn-icon,
+.history .btn:hover .btn-icon svg,
+.settings .btn:hover .btn-text,
+.settings .btn:hover .btn-icon,
+.settings .btn:hover .btn-icon svg {
   color: white !important;
+  stroke: white !important;
 }
 
 .share .your-code {
